@@ -1,118 +1,45 @@
-import pygame
-import random
-import os #operating system
-from random import random, randint, seed
+# Jason Xiao, Alex Li
+# 游戏名
+# March 7 2021
 
-WIDTH=800
-HEIGHT=600
-FPS=30
-VEL=10
+import pygame,sys,os
 
-#define some colors
-WHITE=(255,255,255)
-BLACK=(0,0,0)
-RED=(255,0,0)
-GREEN=(0,255,0)
-BLUE=(0,0,255)
-
-#images
-#where folders are to setup assets
+#文件位置
 game_folder=os.path.dirname(__file__)
-img_folder=os.path.join(game_folder,"image")
+img_folder=os.path.join(game_folder,"image") #图片
+snd_folder=os.path.join(game_folder,"sound") #声音
 
-#setup player
-class Player(pygame.sprite.Sprite):
-    
-    #sprite for the player
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
-        self.image=pygame.image.load(os.path.join(img_folder,"ship.png")).convert()
-        self.image.set_colorkey(BLACK)
-        self.rect=self.image.get_rect()#each sprite is a rect
-        self.rect.center=(WIDTH-60,HEIGHT-60) #set starting location
-        self.x_speed=10
+size = WIDTH, HEIGHT = 800,600 #设置屏幕大小
 
-    def update(self):
-        self.x_speed=0
-        #controls
-        keys=pygame.key.get_pressed()
-        if keys[pygame.K_LEFT]:
-            self.x_speed=-10
-        if keys[pygame.K_RIGHT]:
-            self.x_speed=10
-        self.rect.right += self.x_speed
+BLACK = (0,0,0)#设置一种颜色
 
-#The monster class code will go here later
-class Monster(pygame.sprite.Sprite):
-    
-    #sprite for the monster
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self) #initialize the sprite
-        self.image= pygame.image.load(os.path.join(img_folder,"p1_jump.png")).convert()
-        self.image.set_colorkey(BLACK)
-        #self.image.fill(GREEN)
-        self.rect =  self.image.get_rect()
-        #self.rect.center= (WIDTH / 2, HEIGHT / 2)
-        self.rect.center = (randint(-200,800),  randint(-200,600))
-        self.y_speed=5
+pygame.init() #初始化------这里开始是主程序
 
-    def update(self):
-        self.rect.x+=5
-        self.rect.y+=self.y_speed
-        if self.rect.bottom>HEIGHT-1: #下边界
-            self.y_speed=-5
-        if self.rect.top<1: #上边界
-            self.y_speed=5
-        if self.rect.left>WIDTH:
-            self.rect.right=0
+screen = pygame.display.set_mode(size) #应用屏幕大小
+pygame.display.set_caption("游戏名")
 
-
-#load graphics
-#background
-background=pygame.image.load(os.path.join(img_folder,"galaxy.png"))
+#背景
+background=pygame.image.load(os.path.join(img_folder,"galaxy.png")).convert()
 background_rect=background.get_rect()
 
-#player
-ship=pygame.image.load(os.path.join(img_folder,"ship.png"))
-ship_rect=ship.get_rect()
+#怪物（以后会改）
+monster = pygame.image.load(os.path.join(img_folder,"p1_jump.png")).convert()
+monster_rect=monster.get_rect()#在图片周围做切线形成一个矩形（这样图片就可以知道其位置和大小）
+monster_speed = [1,1] #速度一次一个像素点
 
-#initialize pygame and create window
-pygame.init()
-pygame.mixer.init()
-screen=pygame.display.set_mode((WIDTH,HEIGHT))
-pygame.display.set_caption("game name")
-clock=pygame.time.Clock()
-
-#group all sprites
-all_sprites=pygame.sprite.Group()
-
-#get our player
-player=Player()
-all_sprites.add(player)
-
-#get a monster
-for monster1 in range (1,100):
-    monster1=Monster()
-    all_sprites.add(monster1)
-
-#game loop
-running =True
-while running:
-    #keep loop running at the speed
-    clock.tick(FPS)
-
-    #process inputs(events)
+while True: #循环，一直获取用户的命令并执行
     for event in pygame.event.get():
-        #close the window
         if event.type == pygame.QUIT:
-            running =False 
-    #update
-    all_sprites.update()
+            sys.exit()
+    monster_rect = monster_rect.move(monster_speed[0], monster_speed[1]) #0是横向速度 1是纵向速度
 
-    #draw /render
-    screen.fill(BLACK)
-    screen.blit(background,(0,0))
-    all_sprites.draw(screen)
-    # * after drawing everything, flip the display
-    pygame.display.flip()
-pygame.quit()
+    if monster_rect.left < 0 or monster_rect.right > WIDTH: #屏幕左上角是（0，0），如果怪物位置左边小于0或者大于宽的长度
+        monster_speed[0] = -monster_speed[0] #反相速度，也就是反弹
+    if monster_rect.top < 0 or monster_rect.bottom > HEIGHT: #上下同理
+        monster_speed[1] = -monster_speed[1]
+
+    screen.fill(BLACK)#每次怪物移动填充的颜色
+    screen.blit(background,background_rect)#显示背景
+    screen.blit(monster,monster_rect)#显示怪物
+    
+    pygame.display.update() #刷新屏幕
