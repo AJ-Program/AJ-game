@@ -3,8 +3,8 @@
 # March 7 2021
 
 import pygame,sys,os
-
 from pygame.constants import KEYUP, K_DOWN, K_LEFT, K_RIGHT, K_UP, RESIZABLE
+from random import randint
 
 #文件位置
 game_folder=os.path.dirname(__file__)
@@ -23,20 +23,26 @@ screen = pygame.display.set_mode(size,RESIZABLE) #应用屏幕大小，（可伸
 pygame.display.set_caption("Transocks") #游戏名
 
 #背景
-background=pygame.image.load(os.path.join(img_folder,"galaxy.png")).convert()
+background=pygame.image.load(os.path.join(img_folder,"background.gif"))
 background_rect=background.get_rect()
 
 #怪物（以后会改）
-monster = pygame.image.load(os.path.join(img_folder,"p1_jump.png")).convert()
+monster = pygame.image.load(os.path.join(img_folder,"p1_jump.png"))
 monster_rect=monster.get_rect()#在图片周围做切线形成一个矩形（这样图片就可以知道其位置和大小）
 monster_speed = [1,1] #速度一次一个像素点
 
 #玩家（以后会改）
-player = pygame.image.load(os.path.join(img_folder,"ship.png")).convert()
+player = pygame.image.load(os.path.join(img_folder,"ship.png"))
 player_rect = player.get_rect()
 player_x,player_y=700,700
 player_movex, player_movey = 0,0
 
+#BOSS（以后会改）
+boss = pygame.image.load(os.path.join(img_folder,"Ufo.png"))
+boss_rect = player.get_rect()
+boss_speed = [2,0] #速度
+boss_rect.center = (650,50)#图片中心
+boss_x = 650
 
 #图标
 icon = pygame.image.load(os.path.join(img_folder,"ship.png"))
@@ -75,6 +81,7 @@ while True: #循环，一直获取用户的命令并执行
             size = width, height = event.size[0], event.size[1]
             screen = pygame.display.set_mode(size, pygame.RESIZABLE)
 
+        #鼠标可以拖动图片
         elif event.type == pygame.MOUSEBUTTONDOWN: #如果鼠标按下那么停止移动
             if event.button == 1:
                 still = True
@@ -86,9 +93,9 @@ while True: #循环，一直获取用户的命令并执行
             if event.buttons[0] == 1:
                 monster_rect = monster_rect.move(event.pos[0] - monster_rect.left, event.pos[1] - monster_rect.top)
     
-
     if pygame.display.get_active() and not still: #判断程序是否最小化，最小化后暂停
-        monster_rect = monster_rect.move(monster_speed[0], monster_speed[1]) #0是横向速度 1是纵向速度
+        monster_rect = monster_rect.move(monster_speed[0], monster_speed[1]) #0是横向速度 1是纵向速度，monster移动
+        boss_rect = boss_rect.move(boss_speed[0], boss_speed[1]) #boss移动
 
     #怪物边界
     if monster_rect.left < 0 or monster_rect.right > width: #屏幕左上角是（0，0），如果怪物位置左边小于0或者大于宽的长度
@@ -114,10 +121,22 @@ while True: #循环，一直获取用户的命令并执行
     if player_y > height-40: 
         player_y = height-40 #减去图片本身大小
 
-    screen.fill(BLACK)#每次怪物移动填充的颜色
-    screen.blit(background,background_rect)#显示背景
+    #boss移动（变换方向）
+    changePosition_L = randint(1,650) #随机一个x轴坐标
+    if boss_x == changePosition_L: #如果运动时x轴相等就变方向
+        boss_speed[0] = -boss_speed[0]
+    
+    #boss边界
+    if boss_rect.left < 0 or boss_rect.right > width-80: #屏幕左上角是（0，0），如果怪物位置左边小于0或者大于宽的长度
+        boss_speed[0] = -boss_speed[0] #反相速度，也就是反弹
+        if boss_rect.right > width and boss_rect.right + boss_speed[0] > boss_rect.right:#如果接近边缘
+            boss_speed[0] = -boss_speed[0]
+
+    screen.fill(BLACK)#每次移动填充的颜色
+    screen.blit(background,(0,0))#显示背景
     screen.blit(monster,monster_rect)#显示怪物
     screen.blit(player,(player_x,player_y))#显示玩家
+    screen.blit(boss,boss_rect)#显示boss
     
     pygame.display.update() #刷新屏幕
 
