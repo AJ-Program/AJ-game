@@ -34,8 +34,9 @@ monster_speed = [1,1] #速度一次一个像素点
 #玩家（以后会改）
 player = pygame.image.load(os.path.join(img_folder,"ship.png")).convert()
 player_rect = player.get_rect()
-x,y=700,700
-movex, movey=0,0
+player_x,player_y=700,700
+player_movex, player_movey = 0,0
+
 
 #图标
 icon = pygame.image.load(os.path.join(img_folder,"ship.png"))
@@ -48,28 +49,27 @@ while True: #循环，一直获取用户的命令并执行
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
-        elif event.type == pygame.KEYDOWN: #记录键盘输入
-            if event.key == pygame.K_ESCAPE:
-                sys.exit()
-
+        elif event.type == pygame.KEYDOWN: #记录键盘按下
             #键盘控制
             if event.key == K_LEFT:
-                movex=-1
-            if event.key == K_RIGHT:
-                movex=+1
+                player_movex=-1
+            elif event.key == K_RIGHT:
+                player_movex=1
             elif event.key == K_UP:
-                movey=-1
+                player_movey=-1
             elif event.key == K_DOWN:
-                movey=+1
-        elif event.type == KEYUP:
+                player_movey=1
+        elif event.type == KEYUP: #记录键盘按键抬起
             if event.key == K_LEFT:
-                movex=0
+                player_movex=0
             if event.key == K_RIGHT:
-                movex=0
+                player_movex=0
             if event.key == K_UP:
-                movey=0
+                player_movey=0
             if event.key == K_DOWN:
-                movey=0
+                player_movey=0
+            elif event.key == pygame.K_ESCAPE:#ESC退出游戏
+                    sys.exit()
     
         elif event.type == pygame.VIDEORESIZE: #让边界随窗口大小而改变
             size = width, height = event.size[0], event.size[1]
@@ -89,7 +89,6 @@ while True: #循环，一直获取用户的命令并执行
 
     if pygame.display.get_active() and not still: #判断程序是否最小化，最小化后暂停
         monster_rect = monster_rect.move(monster_speed[0], monster_speed[1]) #0是横向速度 1是纵向速度
-        # player_rect = player_rect.move(player_speed[0], player_speed[1])
 
     #怪物边界
     if monster_rect.left < 0 or monster_rect.right > width: #屏幕左上角是（0，0），如果怪物位置左边小于0或者大于宽的长度
@@ -101,20 +100,24 @@ while True: #循环，一直获取用户的命令并执行
         if monster_rect.bottom > height and monster_rect.bottom + monster_speed[1] > monster_rect.bottom:#同理
             monster_speed[1] = -monster_speed[1]
 
-    # 玩家边界(没做完)
-        if x < 0 or x > width: 
-            x=0
+    #玩家移动
+    player_x+=player_movex
+    player_y+=player_movey
 
-            
-        if player_rect.top < 0 or player_rect.bottom > height: #上下同理
-            y=y
-    x+=movex
-    y+=movey
+    # 玩家边界(没做完)
+    if player_x < 0: 
+        player_x=0
+    if player_x > width-40:
+        player_x = width-40#减去图片本身大小
+    if player_y < 0:
+        player_y=0
+    if player_y > height-40: 
+        player_y = height-40 #减去图片本身大小
 
     screen.fill(BLACK)#每次怪物移动填充的颜色
     screen.blit(background,background_rect)#显示背景
     screen.blit(monster,monster_rect)#显示怪物
-    screen.blit(player,(x,y))#显示玩家
+    screen.blit(player,(player_x,player_y))#显示玩家
     
     pygame.display.update() #刷新屏幕
 
