@@ -131,7 +131,7 @@ def event_press():
     if event.type == pygame.QUIT:
         sys.exit()
     # elif event.type == pygame.KEYDOWN: #记录键盘按下
-    elif event.type == KEYUP: #记录键盘按键抬起
+    elif event.type == pygame.KEYUP: #记录键盘按键抬起
         if event.key == pygame.K_ESCAPE:#ESC退出游戏
             sys.exit()
         if event.key == pygame.K_z or event.key == pygame.K_x:#空格发射子弹
@@ -155,7 +155,10 @@ def event_press():
 '''
 
 BLACK = (0,0,0)#设置一种颜色
-
+GREEN = (0,255,0)
+RED = (255,0,0)
+HEIGHT = 800
+WIDTH = 1400
 fps = 300#每秒钟帧率
 fclock = pygame.time.Clock()#Clock对象，用于控制时间
 
@@ -212,3 +215,27 @@ while True: #循环，一直获取用户的命令并执行
     pygame.display.update() #刷新屏幕
 
     fclock.tick(fps)#控制刷新速度（每秒钟刷新fps次）
+# bullet of the boss
+class Mob(pygame.sprite.Sprite):
+    def __init(self):
+        pygame.sprite.Sprite.__init(self)
+        self.image = pygame.Surface((30,40))
+        self.image.fill(RED)
+        self.rect = self.image.get_rect()
+        self.rect.x = random.randrange(WIDTH - self.rect.width                )#be sure the bullet comes somewhere from left and right
+        self.rect.y = random.randrange(-100.-40)# where the bullet comes from
+        self.rect.speedy = random.randrange(1.8)
+    def update(self):
+        self.tect.y += self.speedy
+        if self.rect.top > HEIGHT + 10:
+            self.rect.x = random.randrange(WIDTH - self.rect.width)
+            self.rect.y = random.randrange(-100,-40)
+            self.speedy = random.randrange(1.8)
+
+all_sprites = pygame.sprite.Group()
+mobs = pygame.sprite.Group()
+player = Player()
+for i in range(8):
+    m = Mob()
+    all_sprites.add(m)
+    mobs.add(m)
