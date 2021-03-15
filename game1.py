@@ -107,8 +107,7 @@ class Boss(pygame.sprite.Sprite):
 class Bullets(pygame.sprite.Sprite):
     def __init__(self,x,y):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((10,20))
-        self.image.fill(GREEN)
+        self.image = pygame.image.load(os.path.join(img_folder,"bullets.gif"))
         self.rect = self.image.get_rect()
         self.rect.centerx = x
         self.rect.bottom = y
@@ -133,8 +132,7 @@ def event_press():
 class Mob(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((30,40))
-        self.image.fill(RED)
+        self.image = pygame.image.load(os.path.join(img_folder,"p1_jump.png"))
         self.rect = self.image.get_rect()
         self.rect.x = randint(400,1000)#be sure the bullet comes somewhere from left and right
         self.rect.y = randint(-100,-40)# where the bullet comes from
