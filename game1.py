@@ -2,7 +2,7 @@
 # Transocks
 # March 7 2021
 
-import pygame,sys,os,math
+import pygame,sys,os
 from pygame.constants import *
 from random import *
 
@@ -35,7 +35,7 @@ class spical_bullets(pygame.sprite.Sprite):
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__() #初始化
-        self.image = pygame.image.load(os.path.join(img_folder,"ship.png")).convert_alpha()#alpha图片透明部分
+        self.image = pygame.image.load(os.path.join(img_folder,"ship.png"))
         self.rect = self.image.get_rect()
         self.rect.center=(player_x,player_y) #玩家初始位置
 
@@ -55,10 +55,10 @@ class Player(pygame.sprite.Sprite):
             self.rect.right=width
             player_x=width
         elif keys[pygame.K_LEFT]: #左键
-            self.x_speed=-1
+            self.x_speed=-3
             player_x+=self.x_speed
         elif keys[pygame.K_RIGHT]:#右键
-            self.x_speed=1
+            self.x_speed=3
             player_x+=self.x_speed
         self.rect.right += self.x_speed
 
@@ -69,12 +69,17 @@ class Player(pygame.sprite.Sprite):
             self.rect.bottom=height
             player_y=height
         elif keys[pygame.K_UP]:
-            self.y_speed=-1
+            self.y_speed=-1.5
             player_y+=self.y_speed
         elif keys[pygame.K_DOWN]:
-            self.y_speed=1
+            self.y_speed=1.5
             player_y+=self.y_speed
         self.rect.bottom += self.y_speed
+
+    def shoot(self):
+        bullets = Bullets(self.rect.centerx,self.rect.y)
+        all_sprites.add(bullets)
+        bullet.add(bullets)
         
 #BOSS
 class Boss(pygame.sprite.Sprite):
@@ -98,67 +103,73 @@ class Boss(pygame.sprite.Sprite):
         if self.rect.right > width and self.rect.right + self.x_speed > self.rect.right:#如果接近边缘
             self.x_speed = -self.x_speed
 
-# #子弹与怪物距离函数 (没做完)
-# def distance(bx,by,Bx,By):#子弹xy轴坐标和Boss xy轴坐标，计算子弹和敌人的距离
-#     distance_x = bx - Bx
-#     distance_y = by - By
-#     return math.sqrt(distance_x*distance_x + distance_y*distance_y) #开根号，勾股定理
-# print(distance(1,1,4,5))
-
 #子弹
-bullets_save = [] #保存子弹，并且当子弹移除窗口时删除
-class Bullets():
-    def __init__(self):
-        self.image = pygame.image.load(os.path.join(img_folder,"bullets.gif"))
-        self.x = player_x-70
-        self.y = player_y-120
-        self.speed=5
-    # def hit(self):
-    #     for i in range (0,10):
-    #         if (distance(self.x, self.y, i.x, i.y)<30):
-    #             bullets_save.remove(self)
-
-#显示子弹函数
-def show_bullet():
-    for b in bullets_save:
-        screen.blit(b.image,(b.x,b.y))
-        b.y -= b.speed
-        if b.y < 0:
-            bullets_save.remove(b)
+class Bullets(pygame.sprite.Sprite):
+    def __init__(self,x,y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((10,20))
+        self.image.fill(GREEN)
+        self.rect = self.image.get_rect()
+        self.rect.centerx = x
+        self.rect.bottom = y
+        self.speed = -5
+    def update(self):
+        self.rect.y += self.speed
+        if self.rect.bottom < 0:
+            self.kill()
 
 #获取事件函数
 def event_press():
+    global running
     if event.type == pygame.QUIT:
-        sys.exit()
-    # elif event.type == pygame.KEYDOWN: #记录键盘按下
-    elif event.type == pygame.KEYUP: #记录键盘按键抬起
+        running = False
+    elif event.type == pygame.KEYDOWN: #记录键盘按下
+        if event.key == pygame.K_z or event.key == pygame.K_x:#发射子弹
+            player.shoot()
+    elif event.type == KEYUP: #记录键盘按键抬起
         if event.key == pygame.K_ESCAPE:#ESC退出游戏
             sys.exit()
-        if event.key == pygame.K_z or event.key == pygame.K_x:#空格发射子弹
-            bullets_save.append(Bullets()) #创建子弹并加入数组
 
-    # # 鼠标可以拖动图片 (没做完)********
-    # elif event.type == pygame.MOUSEBUTTONDOWN: #如果鼠标按下那么停止移动
-    #     if event.button == 1:
-    #         still = True
-    # elif event.type == pygame.MOUSEBUTTONUP: #如果鼠标释放那么到达鼠标的位置并继续运动
-    #     still = False
-    #     if event.button == 1:
-    #         player_rect = player_rect.move(event.pos[0] - player_rect.left, event.pos[1] - player_rect.top)
-    # elif event.type == pygame.MOUSEMOTION: #鼠标移动图片跟随鼠标
-    #     if event.buttons[0] == 1:
-    #         player_rect = player_rect.move(event.pos[0] - player_rect.left, event.pos[1] - player_rect.top)
-
+class Mob(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((30,40))
+        self.image.fill(RED)
+        self.rect = self.image.get_rect()
+        self.rect.x = randint(400,1000)#be sure the bullet comes somewhere from left and right
+        self.rect.y = randint(-100,-40)# where the bullet comes from
+        self.y_speed = randint(2,3)
+        self.x_speed = randint(-2,2)
+    def update(self):
+        self.rect.x += self.x_speed
+        self.rect.y += self.y_speed
+        if self.rect.top > height + 10:
+            self.rect.x = randint(400,1000)
+            self.rect.y = randint(-100,-40)
+            self.speedy = randint(1,8)
 
 '''
 这里以后添加别的类
 '''
 
-BLACK = (0,0,0)#设置一种颜色
-GREEN = (0,255,0)
+#碰撞判断函数
+def hits(): 
+    global hit,still
+    #check to see if a bullet hit the mob
+    hits = pygame.sprite.groupcollide(mobs,bullet,True,True)
+    for hit in hits:
+       m = Mob()
+       all_sprites.add(m)
+       mobs.add(m)
+    
+    #check to see if a mob hit the player
+    hits = pygame.sprite.spritecollide(player,mobs,False)
+    if hits:
+        still = True #如果击中就暂停
+
+BLACK = (0,0,0)#设置颜色
 RED = (255,0,0)
-HEIGHT = 800
-WIDTH = 1400
+GREEN = (0,255,0)
 fps = 300#每秒钟帧率
 fclock = pygame.time.Clock()#Clock对象，用于控制时间
 
@@ -175,7 +186,7 @@ player_x=700
 player_y=700
 
 #是否移动
-still = False #用来判断最小化时暂停
+still = False #用来判断暂停
 
 size = width, height = 1400, 800 #屏幕大小为当前电脑屏幕大小
 screen = pygame.display.set_mode(size,RESIZABLE) #应用屏幕大小，（可伸缩屏幕）
@@ -183,18 +194,27 @@ pygame.display.set_caption("Transocks") #游戏名
 
 #创建一个精灵空组
 all_sprites=pygame.sprite.Group() 
+mobs = pygame.sprite.Group()
+bullet=pygame.sprite.Group()
 
 #获取类
 player=Player()
 boss=Boss()
-spical_bullet=spical_bullets()
+#spical_bullet=spical_bullets()
+
+for i in range(30):
+    m = Mob()
+    all_sprites.add(m)
+    mobs.add(m)
 
 #放入精灵类
 all_sprites.add(player) #添加进精灵组
-all_sprites.add(boss)
-all_sprites.add(spical_bullet)
+all_sprites.add(boss) 
+#all_sprites.add(spical_bullet)
 
-while True: #循环，一直获取用户的命令并执行
+running = True
+
+while running: #循环，一直获取用户的命令并执行
     for event in pygame.event.get():
         event_press()
         #窗口
@@ -208,34 +228,11 @@ while True: #循环，一直获取用户的命令并执行
     #填充和显示
     screen.fill(BLACK)#每次移动填充的颜色
     screen.blit(background,(0,0))#显示背景
-    show_bullet()
 
     all_sprites.draw(screen) #显示导入到精灵类的屏幕
     
     pygame.display.update() #刷新屏幕
 
     fclock.tick(fps)#控制刷新速度（每秒钟刷新fps次）
-# bullet of the boss
-class Mob(pygame.sprite.Sprite):
-    def __init(self):
-        pygame.sprite.Sprite.__init(self)
-        self.image = pygame.Surface((30,40))
-        self.image.fill(RED)
-        self.rect = self.image.get_rect()
-        self.rect.x = random.randrange(WIDTH - self.rect.width                )#be sure the bullet comes somewhere from left and right
-        self.rect.y = random.randrange(-100.-40)# where the bullet comes from
-        self.rect.speedy = random.randrange(1.8)
-    def update(self):
-        self.tect.y += self.speedy
-        if self.rect.top > HEIGHT + 10:
-            self.rect.x = random.randrange(WIDTH - self.rect.width)
-            self.rect.y = random.randrange(-100,-40)
-            self.speedy = random.randrange(1.8)
 
-all_sprites = pygame.sprite.Group()
-mobs = pygame.sprite.Group()
-player = Player()
-for i in range(8):
-    m = Mob()
-    all_sprites.add(m)
-    mobs.add(m)
+    hits()
