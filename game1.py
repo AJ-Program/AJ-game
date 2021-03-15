@@ -14,7 +14,7 @@ snd_folder=os.path.join(game_folder,"sound") #声音
 #怪物（以后会改）特殊子弹
 class spical_bullets(pygame.sprite.Sprite):
     def __init__(self):#初始化
-        pygame.sprite.Sprite.__init__(self)
+        super().__init__() #在初始化
         self.image = pygame.image.load(os.path.join(img_folder,"p1_jump.png"))
         self.rect=self.image.get_rect()#在图片周围做切线形成一个矩形（这样图片就可以知道其位置和大小）
         self.speedx,self.speedy = 1,1 #速度一次一个像素点
@@ -33,17 +33,15 @@ class spical_bullets(pygame.sprite.Sprite):
 
 #玩家
 class Player(pygame.sprite.Sprite):
-    
     def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(os.path.join(img_folder,"ship.png"))
+        super().__init__() #初始化
+        self.image = pygame.image.load(os.path.join(img_folder,"ship.png")).convert_alpha()#alpha图片透明部分
         self.rect = self.image.get_rect()
         self.rect.center=(player_x,player_y) #玩家初始位置
 
     def update(self):#每次更新
         #玩家速度和控制
-        self.x_speed=0
-        self.y_speed=0
+        self.x_speed,self.y_speed=0,0
 
         #定义全局变量
         global player_x,player_y
@@ -63,7 +61,6 @@ class Player(pygame.sprite.Sprite):
             self.x_speed=1
             player_x+=self.x_speed
         self.rect.right += self.x_speed
-        # print(self.x) #获得x轴坐标
 
         if self.rect.top < 0: #同理
             self.rect.top=0
@@ -78,11 +75,11 @@ class Player(pygame.sprite.Sprite):
             self.y_speed=1
             player_y+=self.y_speed
         self.rect.bottom += self.y_speed
-
+        
 #BOSS
 class Boss(pygame.sprite.Sprite):
     def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
+        pygame.sprite.Sprite.__init__(self) #初始化
         self.image = pygame.image.load(os.path.join(img_folder,"Ufo.png"))
         self.rect = self.image.get_rect()
         self.x_speed,self.y_speed = 2,0 #速度
@@ -101,7 +98,7 @@ class Boss(pygame.sprite.Sprite):
         if self.rect.right > width and self.rect.right + self.x_speed > self.rect.right:#如果接近边缘
             self.x_speed = -self.x_speed
 
-# #子弹与怪物距离函数
+# #子弹与怪物距离函数 (没做完)
 # def distance(bx,by,Bx,By):#子弹xy轴坐标和Boss xy轴坐标，计算子弹和敌人的距离
 #     distance_x = bx - Bx
 #     distance_y = by - By
@@ -181,8 +178,8 @@ size = width, height = 1400, 800 #屏幕大小为当前电脑屏幕大小
 screen = pygame.display.set_mode(size,RESIZABLE) #应用屏幕大小，（可伸缩屏幕）
 pygame.display.set_caption("Transocks") #游戏名
 
-#组一起
-all_sprites=pygame.sprite.Group()
+#创建一个精灵空组
+all_sprites=pygame.sprite.Group() 
 
 #获取类
 player=Player()
@@ -190,7 +187,7 @@ boss=Boss()
 spical_bullet=spical_bullets()
 
 #放入精灵类
-all_sprites.add(player)
+all_sprites.add(player) #添加进精灵组
 all_sprites.add(boss)
 all_sprites.add(spical_bullet)
 
