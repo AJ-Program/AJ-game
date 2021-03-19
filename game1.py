@@ -1,10 +1,7 @@
-# Jason Xiao, Alex Li
-# Transocks
-# March 7 2021
-
-import pygame,sys,os
+import pygame,sys,os,controller
 from pygame.constants import *
 from random import *
+from pygame.locals import *
 
 #文件位置
 game_folder=os.path.dirname(__file__)
@@ -38,6 +35,8 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.image.load(os.path.join(img_folder,"ship.png"))
         self.rect = self.image.get_rect()
         self.rect.center=(player_x,player_y) #玩家初始位置
+        self.x=700
+        self.y=700
 
     def update(self):#每次更新
         #玩家速度和控制
@@ -80,12 +79,18 @@ class Player(pygame.sprite.Sprite):
         bullets = Bullets(self.rect.centerx,self.rect.y)
         all_sprites.add(bullets)
         bullet.add(bullets)
+
+    def move_controllor(self, movement: tuple = (0, 0)):
+        self.x += movement[0] * SPEED
+        self.y += movement[1] * SPEED
         
 #BOSS
 class Boss(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self) #初始化
-        self.image = pygame.image.load(os.path.join(img_folder,"Ufo.png"))
+        # self.image = pygame.image.load(os.path.join(img_folder,"Ufo.png"))
+        self.image = pygame.Surface((300,100))
+        self.image.fill(BLACK)
         self.rect = self.image.get_rect()
         self.x_speed,self.y_speed = 2,0 #速度
         self.x = 650
@@ -107,7 +112,9 @@ class Boss(pygame.sprite.Sprite):
 class Bullets(pygame.sprite.Sprite):
     def __init__(self,x,y):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(os.path.join(img_folder,"bullets.gif"))
+        # self.image = pygame.image.load(os.path.join(img_folder,"bullets.gif"))
+        self.image = pygame.Surface((10,20))
+        self.image.fill(GREEN)
         self.rect = self.image.get_rect()
         self.rect.centerx = x
         self.rect.bottom = y
@@ -132,17 +139,19 @@ def event_press():
 class Mob(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(os.path.join(img_folder,"p1_jump.png"))
+        # self.image = pygame.image.load(os.path.join(img_folder,"p1_jump.png"))
+        self.image = pygame.Surface((50,50))
+        self.image.fill(RED)
         self.rect = self.image.get_rect()
-        self.rect.x = randint(400,1000)#be sure the bullet comes somewhere from left and right
+        self.rect.x = randint(400,900)#be sure the bullet comes somewhere from left and right
         self.rect.y = randint(-100,-40)# where the bullet comes from
-        self.y_speed = randint(2,3)
-        self.x_speed = randint(-2,2)
+        self.y_speed = randint(1,2)
+        self.x_speed = randint(-1,2)
     def update(self):
         self.rect.x += self.x_speed
         self.rect.y += self.y_speed
         if self.rect.top > height + 10:
-            self.rect.x = randint(400,1000)
+            self.rect.x = randint(400,900)
             self.rect.y = randint(-100,-40)
             self.speedy = randint(1,8)
 
@@ -183,6 +192,14 @@ background_rect=background.get_rect()
 player_x=700
 player_y=700
 
+#Boss坐标
+Boss_x=650
+Boss_y=100
+
+#玩家手柄
+SPEED=10
+p1 = controller.Controller(0)
+
 #是否移动
 still = False #用来判断暂停
 
@@ -193,14 +210,14 @@ pygame.display.set_caption("Transocks") #游戏名
 #创建一个精灵空组
 all_sprites=pygame.sprite.Group() 
 mobs = pygame.sprite.Group()
-bullet=pygame.sprite.Group()
+bullet = pygame.sprite.Group()
 
 #获取类
 player=Player()
 boss=Boss()
 #spical_bullet=spical_bullets()
 
-for i in range(30):
+for i in range(30): #敌人子弹数
     m = Mob()
     all_sprites.add(m)
     mobs.add(m)
@@ -209,6 +226,10 @@ for i in range(30):
 all_sprites.add(player) #添加进精灵组
 all_sprites.add(boss) 
 #all_sprites.add(spical_bullet)
+
+# Jason Xiao, Alex Li
+# Transocks
+# March 7 2021
 
 running = True
 
@@ -219,6 +240,9 @@ while running: #循环，一直获取用户的命令并执行
         if event.type == pygame.VIDEORESIZE: #让边界随窗口大小而改变
             size = width, height = event.size[0], event.size[1]
             screen = pygame.display.set_mode(size, pygame.RESIZABLE)
+
+    p1.update()
+    player.move_controllor(p1.get_axis())
 
     if pygame.display.get_active() and not still: #判断程序是否最小化，最小化后暂停
         all_sprites.update() #更新精灵类
