@@ -1,4 +1,4 @@
-import pygame,sys,os,controller,time
+import pygame,sys,os,controller
 from pygame.constants import *
 from random import *
 from pygame.locals import *
@@ -124,6 +124,18 @@ class Bullets(pygame.sprite.Sprite):
         if self.rect.bottom < 0:
             self.kill()
 
+#获取事件函数
+def event_press():
+    global running
+    if event.type == pygame.QUIT:
+        running = False
+    elif event.type == pygame.KEYDOWN: #记录键盘按下
+        if event.key == pygame.K_z or event.key == pygame.K_x:#发射子弹
+            player.shoot()
+    elif event.type == KEYUP: #记录键盘按键抬起
+        if event.key == pygame.K_ESCAPE:#ESC退出游戏
+            sys.exit()
+
 class Mob(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
@@ -147,19 +159,6 @@ class Mob(pygame.sprite.Sprite):
 这里以后添加别的类
 '''
 
-#获取事件函数
-def event_press():
-    global running
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.KEYDOWN: #记录键盘按下
-            if event.key == pygame.K_z or event.key == pygame.K_x:#发射子弹
-                player.shoot()
-        elif event.type == KEYUP: #记录键盘按键抬起
-            if event.key == pygame.K_ESCAPE:#ESC退出游戏
-                sys.exit()
-
 #碰撞判断函数
 def hits(): 
     global hit,still
@@ -175,95 +174,10 @@ def hits():
     if hits:
         still = True #如果击中就暂停
 
-def text_objects(text, font):
-    textSurface = font.render(text, True, BLACK)
-    return textSurface, textSurface.get_rect()
-
-def message_diaplay(text):
-    largeText = pygame.font.Font('freesansbold.ttf',115)
-    TextSurf, TextRect = text_objects(text, largeText)
-    TextRect.center = ((width/2),(height/2))
-    screen.blit(TextSurf, TextRect)
-    pygame.display.update()
-    time.sleep(2)
-
-def Die():
-    message_diaplay('You Die.')
-
-def button (msg, x, y, w, h, ic, ac, action=None):
-        mouse =pygame.mouse.get_pos()
-        click = pygame.mouse.get_pressed()
-        # print(click)
-        if x + w > mouse[0] > x and y + h > mouse[1] > y:
-            pygame.draw.rect(screen, ac, (x,y,w,h))
-            if click[0] == 1 and action != None:
-                action()
-        else:
-            pygame.draw.rect(screen, ic, (x,y,w,h))
-        smallText = pygame.font.Font("freesansbold.ttf", 20)
-        textSurf, textRect = text_objects(msg, smallText)
-        textRect.center = ( (x+(w/2)), (y+(h/2)))
-        screen.blit(textSurf, textRect)
-
-def quit_game():
-    pygame.quit()
-    quit()
-
-def game_intro():
-    intro = True
-    while intro:
-        for event in pygame.event.get():
-            # print(event)
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
-        screen.fill(WHITE)
-        largeText = pygame.font.Font('freesansbold.ttf',115)
-        TextSurf, TextRect = text_objects('Transocks', largeText)
-        TextRect.center = ((width/2),(height/2/2))
-        screen.blit(TextSurf, TextRect)
-        button("GO", 500, 450, 100, 50, dark_green, GREEN, game_loop)
-        button("Quit",800, 450, 100, 50, dark_red, RED, quit_game)
-        pygame.display.update()
-        fclock.tick(15)
-
-def game_loop():
-    running = True
-    while running: #循环，一直获取用户的命令并执行
-        # for event in pygame.event.get():
-        event_press()
-            #窗口
-            # if event.type == pygame.VIDEORESIZE: #让边界随窗口大小而改变
-            #     size = width, height = event.size[0], event.size[1]
-            #     screen = pygame.display.set_mode(size, pygame.RESIZABLE)
-
-        p1.update()
-        player.move_controllor(p1.get_axis())
-
-        if pygame.display.get_active() and not still: #判断程序是否最小化，最小化后暂停
-            all_sprites.update() #更新精灵类
-        
-        if still == True:
-            Die()
-
-        #填充和显示
-        screen.fill(BLACK)#每次移动填充的颜色
-        screen.blit(background,(0,0))#显示背景
-
-        all_sprites.draw(screen) #显示导入到精灵类的屏幕
-        
-        pygame.display.update() #刷新屏幕
-
-        fclock.tick(fps)#控制刷新速度（每秒钟刷新fps次）
-
-        hits()
-
 BLACK = (0,0,0)#设置颜色
 RED = (255,0,0)
 GREEN = (0,255,0)
 WHITE = (255,255,255)
-dark_red = (200,0,0)
-dark_green = (0,200,0)
 fps = 300#每秒钟帧率
 fclock = pygame.time.Clock()#Clock对象，用于控制时间
 
@@ -318,8 +232,30 @@ all_sprites.add(boss)
 # Transocks
 # March 7 2021
 
-pygame.init()
+running = True
 
-game_intro()
+while running: #循环，一直获取用户的命令并执行
+    for event in pygame.event.get():
+        event_press()
+        #窗口
+        if event.type == pygame.VIDEORESIZE: #让边界随窗口大小而改变
+            size = width, height = event.size[0], event.size[1]
+            screen = pygame.display.set_mode(size, pygame.RESIZABLE)
 
-game_loop()
+    p1.update()
+    player.move_controllor(p1.get_axis())
+
+    if pygame.display.get_active() and not still: #判断程序是否最小化，最小化后暂停
+        all_sprites.update() #更新精灵类
+
+    #填充和显示
+    screen.fill(BLACK)#每次移动填充的颜色
+    screen.blit(background,(0,0))#显示背景
+
+    all_sprites.draw(screen) #显示导入到精灵类的屏幕
+    
+    pygame.display.update() #刷新屏幕
+
+    fclock.tick(fps)#控制刷新速度（每秒钟刷新fps次）
+
+    hits()
