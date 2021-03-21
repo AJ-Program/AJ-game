@@ -177,7 +177,6 @@ def hits():
 BLACK = (0,0,0)#设置颜色
 RED = (255,0,0)
 GREEN = (0,255,0)
-WHITE = (255,255,255)
 fps = 300#每秒钟帧率
 fclock = pygame.time.Clock()#Clock对象，用于控制时间
 
