@@ -32,7 +32,7 @@ class spical_bullets(pygame.sprite.Sprite):
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__() #初始化
-        self.image = pygame.image.load(os.path.join(img_folder,"ship.png"))
+        self.image = pygame.image.load(os.path.join(img_folder,"ship2.png"))
         self.rect = self.image.get_rect()
         self.rect.center=(player_x,player_y) #玩家初始位置
         self.x=700
@@ -88,9 +88,9 @@ class Player(pygame.sprite.Sprite):
 class Boss(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self) #初始化
-        # self.image = pygame.image.load(os.path.join(img_folder,"Ufo.png"))
-        self.image = pygame.Surface((300,100))
-        self.image.fill(BLACK)
+        self.image = pygame.image.load(os.path.join(img_folder,"Ufo.png"))
+        # self.image = pygame.Surface((300,100))
+        # self.image.fill(BLACK)
         self.rect = self.image.get_rect()
         self.x_speed,self.y_speed = 2,0 #速度
         self.x = 650
@@ -112,9 +112,9 @@ class Boss(pygame.sprite.Sprite):
 class Bullets(pygame.sprite.Sprite):
     def __init__(self,x,y):
         pygame.sprite.Sprite.__init__(self)
-        # self.image = pygame.image.load(os.path.join(img_folder,"bullets.gif"))
-        self.image = pygame.Surface((10,20))
-        self.image.fill(GREEN)
+        self.image = pygame.image.load(os.path.join(img_folder,"bullet2.png"))
+        # self.image = pygame.Surface((10,20))
+        # self.image.fill(GREEN)
         self.rect = self.image.get_rect()
         self.rect.centerx = x
         self.rect.bottom = y
@@ -127,9 +127,9 @@ class Bullets(pygame.sprite.Sprite):
 class Mob(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        # self.image = pygame.image.load(os.path.join(img_folder,"p1_jump.png"))
-        self.image = pygame.Surface((50,50))
-        self.image.fill(RED)
+        self.image = pygame.image.load(os.path.join(img_folder,"p1_jump.png"))
+        # self.image = pygame.Surface((50,50))
+        # self.image.fill(RED)
         self.rect = self.image.get_rect()
         self.rect.x = randint(400,900)#be sure the bullet comes somewhere from left and right
         self.rect.y = randint(-100,-40)# where the bullet comes from
@@ -217,17 +217,22 @@ def game_intro():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
-        screen.fill(WHITE)
-        largeText = pygame.font.Font('freesansbold.ttf',115)
-        TextSurf, TextRect = text_objects('Transocks', largeText)
-        TextRect.center = ((width/2),(height/2/2))
-        screen.blit(TextSurf, TextRect)
+        # screen.fill(WHITE)
+        background=pygame.image.load(os.path.join(img_folder,"background.gif"))
+        screen.blit(background,(0,0))
+        # largeText = pygame.font.Font('freesansbold.ttf',115)
+        # TextSurf, TextRect = text_objects('Transocks', largeText)
+        # TextRect.center = ((width/2),(height/2/2))
+        # screen.blit(TextSurf, TextRect)
         button("GO", 500, 450, 100, 50, dark_green, GREEN, game_loop)
         button("Quit",800, 450, 100, 50, dark_red, RED, quit_game)
         pygame.display.update()
         fclock.tick(15)
 
 def game_loop():
+    #背景
+    # background=pygame.image.load(os.path.join(img_folder,"backgroundPic.png"))
+
     running = True
     while running: #循环，一直获取用户的命令并执行
         # for event in pygame.event.get():
@@ -247,8 +252,8 @@ def game_loop():
             Die()
 
         #填充和显示
-        screen.fill(BLACK)#每次移动填充的颜色
-        screen.blit(background,(0,0))#显示背景
+        screen.fill(WHITE)#每次移动填充的颜色
+        # screen.blit(background,(0,0))#显示背景
 
         all_sprites.draw(screen) #显示导入到精灵类的屏幕
         
@@ -268,12 +273,8 @@ fps = 300#每秒钟帧率
 fclock = pygame.time.Clock()#Clock对象，用于控制时间
 
 #图标
-icon = pygame.image.load(os.path.join(img_folder,"ship.png"))
+icon = pygame.image.load(os.path.join(img_folder,"ship2.png"))
 pygame.display.set_icon(icon)
-
-#背景
-background=pygame.image.load(os.path.join(img_folder,"background.gif"))
-background_rect=background.get_rect()
 
 #玩家坐标
 player_x=700
