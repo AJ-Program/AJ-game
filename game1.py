@@ -35,8 +35,10 @@ class spical_bullets(pygame.sprite.Sprite):
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__() #初始化
-        self.image = pygame.image.load(os.path.join(img_folder,"ship2.png"))
+        self.image = pygame.image.load(os.path.join(img_folder,"player.png"))
         self.rect = self.image.get_rect()
+        self.radius = 14
+        #pygame.draw.circle(self.image,RED,self.rect.center, self.radius)
         self.rect.center=(player_x,player_y) #玩家初始位置
         self.x=700
         self.y=700
@@ -71,10 +73,10 @@ class Player(pygame.sprite.Sprite):
             self.rect.bottom=height
             player_y=height
         elif keys[pygame.K_UP]:
-            self.y_speed=-1.5
+            self.y_speed=-3
             player_y+=self.y_speed
         elif keys[pygame.K_DOWN]:
-            self.y_speed=1.5
+            self.y_speed=3
             player_y+=self.y_speed
         self.rect.bottom += self.y_speed
 
@@ -91,25 +93,25 @@ class Player(pygame.sprite.Sprite):
 class Boss(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self) #初始化
-        self.image = pygame.image.load(os.path.join(img_folder,"Ufo.png"))
+        self.image = pygame.image.load(os.path.join(img_folder,"boss.png"))
         # self.image = pygame.Surface((300,100))
         # self.image.fill(BLACK)
         self.rect = self.image.get_rect()
         self.x_speed,self.y_speed = 2,0 #速度
         self.x = 650
         self.rect.center = (self.x,100)#图片中心
-    def update(self):
-        #移动
-        self.rect = self.rect.move(self.x_speed, self.y_speed)
-        #边界
-        if self.rect.left < 0 or self.rect.right > width: #屏幕左上角是（0，0），如果怪物位置左边小于0或者大于宽的长度
-            self.x_speed = -self.x_speed #反相速度，也就是反弹
-        #boss移动（变换方向）
-        changePosition_L = randint(1,width-1) #随机一个x轴坐标
-        if self.x == changePosition_L: #如果运动时x轴相等就变方向
-            self.x_speed = -self.x_speed
-        if self.rect.right > width and self.rect.right + self.x_speed > self.rect.right:#如果接近边缘
-            self.x_speed = -self.x_speed
+    # def update(self):
+    #     #移动
+    #     self.rect = self.rect.move(self.x_speed, self.y_speed)
+    #     #边界
+    #     if self.rect.left < 0 or self.rect.right > width: #屏幕左上角是（0，0），如果怪物位置左边小于0或者大于宽的长度
+    #         self.x_speed = -self.x_speed #反相速度，也就是反弹
+    #     #boss移动（变换方向）
+    #     changePosition_L = randint(1,width-1) #随机一个x轴坐标
+    #     if self.x == changePosition_L: #如果运动时x轴相等就变方向
+    #         self.x_speed = -self.x_speed
+    #     if self.rect.right > width and self.rect.right + self.x_speed > self.rect.right:#如果接近边缘
+    #         self.x_speed = -self.x_speed
 
 #子弹
 class Bullets(pygame.sprite.Sprite):
@@ -130,10 +132,12 @@ class Bullets(pygame.sprite.Sprite):
 class Mob(pygame.sprite.Sprite): #Mob
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(os.path.join(img_folder,"p1_jump.png"))
+        self.image = pygame.image.load(os.path.join(img_folder,"mob1.png"))
         # self.image = pygame.Surface((50,50))
         # self.image.fill(RED)
         self.rect = self.image.get_rect()
+        self.radius = int(self.rect.width/2)
+        #pygame.draw.circle(self.image,RED,self.rect.center, self.radius)
         self.rect.x = randint(400,900)#be sure the bullet comes somewhere from left and right
         self.rect.y = randint(-100,-40)# where the bullet comes from
         self.y_speed = randint(1,2)
@@ -167,7 +171,7 @@ def event_press():
 
 #碰撞判断函数
 def hits(): 
-    global hit,still
+    global hit,still,player_live
     #check to see if a bullet hit the mob
     hits = pygame.sprite.groupcollide(mobs,bullet,True,True)
     for hit in hits:
@@ -176,10 +180,21 @@ def hits():
        mobs.add(m)
     
     #check to see if a mob hit the player
-    hits = pygame.sprite.spritecollide(player,mobs,False)
-    if hits:
+    mob_hits = pygame.sprite.spritecollide(player,mobs,False,pygame.sprite.collide_circle)
+    #boss_hits = pygame.sprite.groupcollide(player,boss,False,pygame.sprite.collide_circle)
+    if mob_hits:
+        # still = True
+        # player_live-=1
+        # print(player_live)
+        # if player_live<=0:
         still = True #如果击中就暂停
         Die()
+    #check to see if the player hit the boss
+    #elif(boss_hits):
+    #    still = True
+    #    Die()
+    
+# def pause_lives():
 
 def text_objects1(text, font):
     textSurface = font.render(text, True, WHITE)
@@ -189,17 +204,13 @@ def text_objects2(text, font):
     textSurface = font.render(text, True, RED)
     return textSurface, textSurface.get_rect()
 
-# def message_diaplay(text):
-#     largeText = pygame.font.Font(os.path.join(font_folder,"arcadeclassic.ttf"),115)
-#     TextSurf, TextRect = text_objects2(text, largeText)
-#     TextRect.center = ((width/2),(height/2))
-#     screen.blit(TextSurf, TextRect)
-#     pygame.display.update()
-#     time.sleep(2)
+def text_objects3(text, font):
+    textSurface = font.render(text, True, GREEN)
+    return textSurface, textSurface.get_rect()
 
 def Die():
     largeText = pygame.font.Font(os.path.join(font_folder,"arcadeclassic.ttf"),115)
-    TextSurf, TextRect = text_objects2('You   Die', largeText)
+    TextSurf, TextRect = text_objects3('Game   Over!', largeText)
     TextRect.center = ((width/2),(height/2))
     screen.blit(TextSurf, TextRect)
  
@@ -319,12 +330,14 @@ fps = 300#每秒钟帧率
 fclock = pygame.time.Clock()#Clock对象，用于控制时间
 
 #图标
-icon = pygame.image.load(os.path.join(img_folder,"ship2.png"))
+icon = pygame.image.load(os.path.join(img_folder,"player.png"))
 pygame.display.set_icon(icon)
 
 #玩家坐标
 player_x=700
 player_y=700
+
+player_live = 3
 
 #Boss坐标
 Boss_x=650
@@ -338,20 +351,21 @@ SPEED=10
 still = False #用来判断暂停
 
 size = width, height = 1400, 800 #屏幕大小为当前电脑屏幕大小
-screen = pygame.display.set_mode(size,RESIZABLE) #应用屏幕大小，（可伸缩屏幕）
+screen = pygame.display.set_mode(size)#,RESIZABLE) #应用屏幕大小，（可伸缩屏幕）
 pygame.display.set_caption("Transocks") #游戏名
 
 #创建一个精灵空组
 all_sprites=pygame.sprite.Group() 
 mobs = pygame.sprite.Group()
 bullet = pygame.sprite.Group()
+boss = pygame.sprite.Group()
 
 #获取类
 player=Player()
 boss=Boss()
 #spical_bullet=spical_bullets()
 
-for i in range(30): #敌人子弹数
+for i in range(30): #小怪数
     m = Mob()
     all_sprites.add(m)
     mobs.add(m)
