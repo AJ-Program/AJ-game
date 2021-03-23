@@ -7,8 +7,10 @@ from pygame.locals import *
 game_folder=os.path.dirname(__file__)
 img_folder=os.path.join(game_folder,"image") #图片
 snd_folder=os.path.join(game_folder,"sound") #声音
+font_folder=os.path.join(game_folder,"font") 
 
-#怪物（以后会改）特殊子弹
+'''
+#特殊子弹
 class spical_bullets(pygame.sprite.Sprite):
     def __init__(self):#初始化
         super().__init__() #在初始化
@@ -27,6 +29,7 @@ class spical_bullets(pygame.sprite.Sprite):
             self.speedy = -self.speedy
         if self.rect.bottom > height and self.rect.bottom + self.speedy > self.rect.bottom:#同理
             self.speedy = -self.speedy
+'''
 
 #玩家
 class Player(pygame.sprite.Sprite):
@@ -80,9 +83,9 @@ class Player(pygame.sprite.Sprite):
         all_sprites.add(bullets)
         bullet.add(bullets)
 
-    def move_controllor(self, movement: tuple = (0, 0)):
-        self.x += movement[0] * SPEED
-        self.y += movement[1] * SPEED
+    # def move_controllor(self, movement: tuple = (0, 0)):
+    #     self.x += movement[0] * SPEED
+    #     self.y += movement[1] * SPEED
         
 #BOSS
 class Boss(pygame.sprite.Sprite):
@@ -124,7 +127,7 @@ class Bullets(pygame.sprite.Sprite):
         if self.rect.bottom < 0:
             self.kill()
 
-class Mob(pygame.sprite.Sprite):
+class Mob(pygame.sprite.Sprite): #Mob
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load(os.path.join(img_folder,"p1_jump.png"))
@@ -149,16 +152,18 @@ class Mob(pygame.sprite.Sprite):
 
 #获取事件函数
 def event_press():
-    global running
+    global running,still
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN: #记录键盘按下
             if event.key == pygame.K_z or event.key == pygame.K_x:#发射子弹
                 player.shoot()
-        elif event.type == KEYUP: #记录键盘按键抬起
-            if event.key == pygame.K_ESCAPE:#ESC退出游戏
-                sys.exit()
+        # elif event.type == KEYUP: #记录键盘按键抬起
+            if event.key == pygame.K_ESCAPE:#ESC
+                # sys.exit()
+                still = True
+                pause()
 
 #碰撞判断函数
 def hits(): 
@@ -174,21 +179,40 @@ def hits():
     hits = pygame.sprite.spritecollide(player,mobs,False)
     if hits:
         still = True #如果击中就暂停
+        Die()
 
-def text_objects(text, font):
-    textSurface = font.render(text, True, BLACK)
+def text_objects1(text, font):
+    textSurface = font.render(text, True, WHITE)
     return textSurface, textSurface.get_rect()
 
-def message_diaplay(text):
-    largeText = pygame.font.Font('freesansbold.ttf',115)
-    TextSurf, TextRect = text_objects(text, largeText)
-    TextRect.center = ((width/2),(height/2))
-    screen.blit(TextSurf, TextRect)
-    pygame.display.update()
-    time.sleep(2)
+def text_objects2(text, font):
+    textSurface = font.render(text, True, RED)
+    return textSurface, textSurface.get_rect()
+
+# def message_diaplay(text):
+#     largeText = pygame.font.Font(os.path.join(font_folder,"arcadeclassic.ttf"),115)
+#     TextSurf, TextRect = text_objects2(text, largeText)
+#     TextRect.center = ((width/2),(height/2))
+#     screen.blit(TextSurf, TextRect)
+#     pygame.display.update()
+#     time.sleep(2)
 
 def Die():
-    message_diaplay('You Die.')
+    largeText = pygame.font.Font(os.path.join(font_folder,"arcadeclassic.ttf"),115)
+    TextSurf, TextRect = text_objects2('You   Die', largeText)
+    TextRect.center = ((width/2),(height/2))
+    screen.blit(TextSurf, TextRect)
+ 
+    while True:
+        for event in pygame.event.get():
+            # print(event)
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+        button(" Retry", 500, 450, 120, 50, dark_green, GREEN, game_loop)
+        button(" Quit",800, 450, 100, 50, dark_red, RED, quit_game)
+        pygame.display.update()
+        fclock.tick(15)
 
 def button (msg, x, y, w, h, ic, ac, action=None):
         mouse =pygame.mouse.get_pos()
@@ -200,8 +224,8 @@ def button (msg, x, y, w, h, ic, ac, action=None):
                 action()
         else:
             pygame.draw.rect(screen, ic, (x,y,w,h))
-        smallText = pygame.font.Font("freesansbold.ttf", 20)
-        textSurf, textRect = text_objects(msg, smallText)
+        smallText = pygame.font.Font(os.path.join(font_folder,"arcadeclassic.ttf"), 40)
+        textSurf, textRect = text_objects1(msg, smallText)
         textRect.center = ( (x+(w/2)), (y+(h/2)))
         screen.blit(textSurf, textRect)
 
@@ -209,7 +233,30 @@ def quit_game():
     pygame.quit()
     quit()
 
+def unpause():
+    global still
+    still = False
+
+def pause():
+    largeText = pygame.font.Font(os.path.join(font_folder,"arcadeclassic.ttf"),115)
+    TextSurf, TextRect = text_objects2('Paused', largeText)
+    TextRect.center = ((width/2),(height/2))
+    screen.blit(TextSurf, TextRect)
+ 
+    while still:
+        for event in pygame.event.get():
+            # print(event)
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+        button("Continue", 500, 450, 185, 50, dark_green, GREEN, unpause)
+        button(" Quit",800, 450, 100, 50, dark_red, RED, quit_game)
+        pygame.display.update()
+        fclock.tick(15)
+
 def game_intro():
+    global still
+    still = False
     intro = True
     while intro:
         for event in pygame.event.get():
@@ -220,18 +267,20 @@ def game_intro():
         # screen.fill(WHITE)
         background=pygame.image.load(os.path.join(img_folder,"background.gif"))
         screen.blit(background,(0,0))
-        # largeText = pygame.font.Font('freesansbold.ttf',115)
-        # TextSurf, TextRect = text_objects('Transocks', largeText)
+
+        # largeText = pygame.font.Font(os.path.join(font_folder,"arcadeclassic.ttf"),270)
+        # TextSurf, TextRect = text_objects2('Transocks', largeText)
         # TextRect.center = ((width/2),(height/2/2))
         # screen.blit(TextSurf, TextRect)
+
         button("GO", 500, 450, 100, 50, dark_green, GREEN, game_loop)
-        button("Quit",800, 450, 100, 50, dark_red, RED, quit_game)
+        button(" Quit",800, 450, 100, 50, dark_red, RED, quit_game)
         pygame.display.update()
         fclock.tick(15)
 
 def game_loop():
     #背景
-    # background=pygame.image.load(os.path.join(img_folder,"backgroundPic.png"))
+    background=pygame.image.load(os.path.join(img_folder,"backgroundPic.jpg"))
 
     running = True
     while running: #循环，一直获取用户的命令并执行
@@ -242,18 +291,15 @@ def game_loop():
             #     size = width, height = event.size[0], event.size[1]
             #     screen = pygame.display.set_mode(size, pygame.RESIZABLE)
 
-        p1.update()
-        player.move_controllor(p1.get_axis())
+        # p1.update()
+        # player.move_controllor(p1.get_axis())
 
         if pygame.display.get_active() and not still: #判断程序是否最小化，最小化后暂停
             all_sprites.update() #更新精灵类
-        
-        if still == True:
-            Die()
 
         #填充和显示
         screen.fill(WHITE)#每次移动填充的颜色
-        # screen.blit(background,(0,0))#显示背景
+        screen.blit(background,(0,0))#显示背景
 
         all_sprites.draw(screen) #显示导入到精灵类的屏幕
         
@@ -286,7 +332,7 @@ Boss_y=100
 
 #玩家手柄
 SPEED=10
-p1 = controller.Controller(0)
+# p1 = controller.Controller(0)
 
 #是否移动
 still = False #用来判断暂停
