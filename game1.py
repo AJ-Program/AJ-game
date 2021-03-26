@@ -1,4 +1,4 @@
-import pygame,sys,os,controller,time
+import pygame,os,controller,time
 from pygame.constants import *
 from random import *
 from pygame.locals import *
@@ -39,45 +39,43 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.radius = 14
         #pygame.draw.circle(self.image,RED,self.rect.center, self.radius)
-        self.rect.center=(player_x,player_y) #玩家初始位置
-        self.x=700
-        self.y=700
+        self.x=Player_x
+        self.y=Player_y
+        self.rect.center=(self.x,self.y) #玩家初始位置
+        self.lives=3
 
     def update(self):#每次更新
         #玩家速度和控制
         self.x_speed,self.y_speed=0,0
 
-        #定义全局变量
-        global player_x,player_y
-
         keys=pygame.key.get_pressed()
 
         if self.rect.left < 0:#玩家左边界
             self.rect.left=0
-            player_x=0
+            self.x=0
         elif self.rect.right > width: #右边界
             self.rect.right=width
-            player_x=width
+            self.x=width
         elif keys[pygame.K_LEFT]: #左键
             self.x_speed=-3
-            player_x+=self.x_speed
+            self.x+=self.x_speed
         elif keys[pygame.K_RIGHT]:#右键
             self.x_speed=3
-            player_x+=self.x_speed
+            self.x+=self.x_speed
         self.rect.right += self.x_speed
 
         if self.rect.top < 0: #同理
             self.rect.top=0
-            player_y=0
+            self.y=0
         elif self.rect.bottom > height:
             self.rect.bottom=height
-            player_y=height
+            self.y=height
         elif keys[pygame.K_UP]:
             self.y_speed=-3
-            player_y+=self.y_speed
+            self.y+=self.y_speed
         elif keys[pygame.K_DOWN]:
             self.y_speed=3
-            player_y+=self.y_speed
+            self.y+=self.y_speed
         self.rect.bottom += self.y_speed
 
     def shoot(self):
@@ -85,6 +83,11 @@ class Player(pygame.sprite.Sprite):
         all_sprites.add(bullets)
         bullet.add(bullets)
 
+    def reset(self):    # 添加重生的方法
+        global still
+        self.rect.left, self.rect.bottom = Player_x, Player_y
+        still = False
+        
     # def move_controllor(self, movement: tuple = (0, 0)):
     #     self.x += movement[0] * SPEED
     #     self.y += movement[1] * SPEED
@@ -150,10 +153,6 @@ class Mob(pygame.sprite.Sprite): #Mob
             self.rect.y = randint(-100,-40)
             self.speedy = randint(1,8)
 
-'''
-这里以后添加别的类
-'''
-
 #获取事件函数
 def event_press():
     global running,still
@@ -171,30 +170,34 @@ def event_press():
 
 #碰撞判断函数
 def hits(): 
-    global hit,still,player_live
+    global hit,still,player_live,number_killed
     #check to see if a bullet hit the mob
     hits = pygame.sprite.groupcollide(mobs,bullet,True,True)
     for hit in hits:
        m = Mob()
        all_sprites.add(m)
        mobs.add(m)
+
+       number_killed+=1
+    #    print(number_killed)
+
+    # hits = pygame.sprite.spritecollide(player,boss,False)
+    # if hits:
+    #     print("打中")
     
     #check to see if a mob hit the player
-    mob_hits = pygame.sprite.spritecollide(player,mobs,False,pygame.sprite.collide_circle)
-    #boss_hits = pygame.sprite.groupcollide(player,boss,False,pygame.sprite.collide_circle)
-    if mob_hits:
-        # still = True
-        # player_live-=1
-        # print(player_live)
-        # if player_live<=0:
+    hits = pygame.sprite.spritecollide(player,mobs,False,pygame.sprite.collide_circle)
+    if hits:
         still = True #如果击中就暂停
         Die()
-    #check to see if the player hit the boss
-    #elif(boss_hits):
-    #    still = True
-    #    Die()
-    
-# def pause_lives():
+
+    # mobHits = pygame.sprite.spritecollide(player, mobs, False)
+    # print(player.lives)
+    # if mobHits:
+    #     player.lives-=1
+    #     print(player.lives)
+    #     if player.lives==0:
+    #         Die()
 
 def text_objects1(text, font):
     textSurface = font.render(text, True, WHITE)
@@ -208,6 +211,7 @@ def text_objects3(text, font):
     textSurface = font.render(text, True, GREEN)
     return textSurface, textSurface.get_rect()
 
+#死亡界面
 def Die():
     largeText = pygame.font.Font(os.path.join(font_folder,"arcadeclassic.ttf"),115)
     TextSurf, TextRect = text_objects3('Game   Over!', largeText)
@@ -225,6 +229,7 @@ def Die():
         pygame.display.update()
         fclock.tick(15)
 
+#按钮
 def button (msg, x, y, w, h, ic, ac, action=None):
         mouse =pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
@@ -240,14 +245,22 @@ def button (msg, x, y, w, h, ic, ac, action=None):
         textRect.center = ( (x+(w/2)), (y+(h/2)))
         screen.blit(textSurf, textRect)
 
+def score_text(num):
+    largeText = pygame.font.Font(os.path.join(font_folder,"arcadeclassic.ttf"),115)
+    TextSurf, TextRect = text_objects3(num, largeText)
+    TextRect.center = ((700),(700))
+    screen.blit(TextSurf, TextRect)
+
 def quit_game():
     pygame.quit()
     quit()
 
+#未暂停
 def unpause():
     global still
     still = False
 
+#暂停
 def pause():
     largeText = pygame.font.Font(os.path.join(font_folder,"arcadeclassic.ttf"),115)
     TextSurf, TextRect = text_objects2('Paused', largeText)
@@ -265,19 +278,45 @@ def pause():
         pygame.display.update()
         fclock.tick(15)
 
+#游戏开始界面
 def game_intro():
     global still
     still = False
     intro = True
+    count = 0
+    background_intro = []
+    for i in range(1,11):
+        background_intro.append(pygame.image.load(os.path.join(img_folder,"background1.png")))
+    for i in range(1,11):
+        background_intro.append(pygame.image.load(os.path.join(img_folder,"background2.png")))
+    for i in range(1,11):
+        background_intro.append(pygame.image.load(os.path.join(img_folder,"background3.png")))
+    for i in range(1,11):
+        background_intro.append(pygame.image.load(os.path.join(img_folder,"background4.png")))
+    for i in range(1,11):
+        background_intro.append(pygame.image.load(os.path.join(img_folder,"background5.png")))
+    for i in range(1,11):
+        background_intro.append(pygame.image.load(os.path.join(img_folder,"background6.png")))
+    for i in range(1,11):
+        background_intro.append(pygame.image.load(os.path.join(img_folder,"background7.png")))
+    for i in range(1,11):
+        background_intro.append(pygame.image.load(os.path.join(img_folder,"background8.png")))
+
     while intro:
         for event in pygame.event.get():
             # print(event)
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
-        # screen.fill(WHITE)
-        background=pygame.image.load(os.path.join(img_folder,"background.gif"))
-        screen.blit(background,(0,0))
+        
+        background_intro1 = background_intro[count]
+
+        screen.blit(background_intro1,(0,0))
+
+        count+=1
+
+        if count > 79:
+            count = 0
 
         # largeText = pygame.font.Font(os.path.join(font_folder,"arcadeclassic.ttf"),270)
         # TextSurf, TextRect = text_objects2('Transocks', largeText)
@@ -290,20 +329,14 @@ def game_intro():
         fclock.tick(15)
 
 def game_loop():
+    player.reset()
+
     #背景
     background=pygame.image.load(os.path.join(img_folder,"backgroundPic.jpg"))
 
     running = True
     while running: #循环，一直获取用户的命令并执行
-        # for event in pygame.event.get():
         event_press()
-            #窗口
-            # if event.type == pygame.VIDEORESIZE: #让边界随窗口大小而改变
-            #     size = width, height = event.size[0], event.size[1]
-            #     screen = pygame.display.set_mode(size, pygame.RESIZABLE)
-
-        # p1.update()
-        # player.move_controllor(p1.get_axis())
 
         if pygame.display.get_active() and not still: #判断程序是否最小化，最小化后暂停
             all_sprites.update() #更新精灵类
@@ -334,14 +367,14 @@ icon = pygame.image.load(os.path.join(img_folder,"player.png"))
 pygame.display.set_icon(icon)
 
 #玩家坐标
-player_x=700
-player_y=700
-
-player_live = 3
+Player_x=700
+Player_y=700
 
 #Boss坐标
 Boss_x=650
 Boss_y=100
+
+number_killed=0#分数
 
 #玩家手柄
 SPEED=10
@@ -356,13 +389,14 @@ pygame.display.set_caption("Transocks") #游戏名
 
 #创建一个精灵空组
 all_sprites=pygame.sprite.Group() 
+p=pygame.sprite.Group()
 mobs = pygame.sprite.Group()
 bullet = pygame.sprite.Group()
 boss = pygame.sprite.Group()
 
 #获取类
 player=Player()
-boss=Boss()
+b=Boss()
 #spical_bullet=spical_bullets()
 
 for i in range(30): #小怪数
@@ -372,13 +406,12 @@ for i in range(30): #小怪数
 
 #放入精灵类
 all_sprites.add(player) #添加进精灵组
-all_sprites.add(boss) 
+all_sprites.add(b) 
 #all_sprites.add(spical_bullet)
 
 # Jason Xiao, Alex Li
 # Transocks
 # March 7 2021
-
 pygame.init()
 
 game_intro()
