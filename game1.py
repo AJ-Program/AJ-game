@@ -30,7 +30,16 @@ class spical_bullets(pygame.sprite.Sprite):
         if self.rect.bottom > height and self.rect.bottom + self.speedy > self.rect.bottom:#同理
             self.speedy = -self.speedy
 '''
-
+def draw_shield_bar(surf,x,y,pct):
+    if pct < 0:
+        pct = 0
+    BAR_LENGTH = 100
+    BAR_HEIGHT = 10
+    fill = (pct/100)*BAR_LENGTH
+    outline_rect = pygame.Rect(x,y,BAR_LENGTH,BAR_HEIGHT)
+    fill_rect = pygame.Rect(x,y,fill,BAR_HEIGHT)
+    pygame.draw.rect(surf,GREEN,fill_rect)
+    pygame.draw.rect(surf,RED,outline_rect,2)
 #玩家
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -42,7 +51,7 @@ class Player(pygame.sprite.Sprite):
         self.x=Player_x
         self.y=Player_y
         self.rect.center=(self.x,self.y) #玩家初始位置
-        self.lives=3
+        self.shield = 161
 
     def update(self):#每次更新
         #玩家速度和控制
@@ -178,7 +187,6 @@ def hits():
        m = Mob()
        all_sprites.add(m)
        mobs.add(m)
-
        score+=1
     #    print(number_killed)
 
@@ -187,10 +195,16 @@ def hits():
     #     print("打中")
     
     #check to see if a mob hit the player
-    hits = pygame.sprite.spritecollide(player,mobs,False,pygame.sprite.collide_circle)
-    if hits:
-        still = True #如果击中就暂停
-        Die()
+    hits = pygame.sprite.spritecollide(player,mobs,True ,pygame.sprite.collide_circle)
+    for hit in hits:
+        player.shield -= hit.radius*2
+        m = Mob()
+        all_sprites.add(m)
+        mobs.add(m)
+
+        if player.shield<=0:
+            Die()
+            #still = True #如果击中就暂停 
 
     # mobHits = pygame.sprite.spritecollide(player, mobs, False)
     # print(player.lives)
@@ -251,6 +265,28 @@ def score_text():
     score_font = pygame.font.Font(os.path.join(font_folder,"arcadeclassic.ttf"),40)
     score_surface = score_font.render("Score  %s" % str(score), True, BLUE)
     screen.blit(score_surface,(30,20))
+
+def count_down():
+    # while True:
+    #     # for minute in range(2, -1, -1):
+    #     #     if minute == 0:
+    #     #         break
+    #     for second in range(59, -1, -1):
+    #         time.sleep(1)
+    #         return second
+    #     # print("结束")
+    #     break
+    start_ticks=pygame.time.get_ticks()
+    while True:
+        seconds=(pygame.time.get_ticks()-start_ticks)/1000 #calculate how many seconds
+        if seconds>10: # if more than 10 seconds close the game
+            break
+        print (seconds)
+
+def countdown_text():
+    countdown_font = pygame.font.Font(os.path.join(font_folder,"arcadeclassic.ttf"),40)
+    countdown_surface = countdown_font.render("Time %s" % str(count_down), True, BLUE)
+    screen.blit(countdown_surface,(0,700))
 
 def quit_game():
     pygame.quit()
@@ -346,6 +382,9 @@ def game_loop():
         screen.fill(WHITE)#每次移动填充的颜色
         screen.blit(background,(0,0))#显示背景
         score_text()
+        countdown_text()
+        #draw
+        draw_shield_bar(screen,700,700,player.shield)
 
         all_sprites.draw(screen) #显示导入到精灵类的屏幕
         
