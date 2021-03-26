@@ -132,7 +132,8 @@ class Bullets(pygame.sprite.Sprite):
         if self.rect.bottom < 0:
             self.kill()
 
-class Mob(pygame.sprite.Sprite): #Mob
+#Mob
+class Mob(pygame.sprite.Sprite): 
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load(os.path.join(img_folder,"mob1.png"))
@@ -170,7 +171,7 @@ def event_press():
 
 #碰撞判断函数
 def hits(): 
-    global hit,still,player_live,number_killed
+    global hit,still,player_live,score
     #check to see if a bullet hit the mob
     hits = pygame.sprite.groupcollide(mobs,bullet,True,True)
     for hit in hits:
@@ -178,7 +179,7 @@ def hits():
        all_sprites.add(m)
        mobs.add(m)
 
-       number_killed+=1
+       score+=1
     #    print(number_killed)
 
     # hits = pygame.sprite.spritecollide(player,boss,False)
@@ -245,11 +246,11 @@ def button (msg, x, y, w, h, ic, ac, action=None):
         textRect.center = ( (x+(w/2)), (y+(h/2)))
         screen.blit(textSurf, textRect)
 
-def score_text(num):
-    largeText = pygame.font.Font(os.path.join(font_folder,"arcadeclassic.ttf"),115)
-    TextSurf, TextRect = text_objects3(num, largeText)
-    TextRect.center = ((700),(700))
-    screen.blit(TextSurf, TextRect)
+def score_text():
+    global score
+    score_font = pygame.font.Font(os.path.join(font_folder,"arcadeclassic.ttf"),40)
+    score_surface = score_font.render("Score  %s" % str(score), True, BLUE)
+    screen.blit(score_surface,(30,20))
 
 def quit_game():
     pygame.quit()
@@ -332,7 +333,7 @@ def game_loop():
     player.reset()
 
     #背景
-    background=pygame.image.load(os.path.join(img_folder,"backgroundPic.jpg"))
+    background=pygame.image.load(os.path.join(img_folder,"backgroundPic.jpg"))    
 
     running = True
     while running: #循环，一直获取用户的命令并执行
@@ -344,6 +345,7 @@ def game_loop():
         #填充和显示
         screen.fill(WHITE)#每次移动填充的颜色
         screen.blit(background,(0,0))#显示背景
+        score_text()
 
         all_sprites.draw(screen) #显示导入到精灵类的屏幕
         
@@ -359,6 +361,7 @@ GREEN = (0,255,0)
 WHITE = (255,255,255)
 dark_red = (200,0,0)
 dark_green = (0,200,0)
+BLUE = (0,0,255)
 fps = 300#每秒钟帧率
 fclock = pygame.time.Clock()#Clock对象，用于控制时间
 
@@ -374,7 +377,7 @@ Player_y=700
 Boss_x=650
 Boss_y=100
 
-number_killed=0#分数
+score=0#分数
 
 #玩家手柄
 SPEED=10
