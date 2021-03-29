@@ -322,6 +322,10 @@ def game_intro():
     intro = True
     count = 0
     background_intro = []
+
+    #bgm
+    pygame.mixer.music.play(-1)
+
     for i in range(1,11):
         background_intro.append(pygame.image.load(os.path.join(img_folder,"background1.png")))
     for i in range(1,11):
@@ -384,7 +388,7 @@ def game_loop():
         score_text()
         countdown_text()
         #draw
-        draw_shield_bar(screen,700,700,player.shield)
+        draw_shield_bar(screen,1150,40,player.shield)
 
         all_sprites.draw(screen) #显示导入到精灵类的屏幕
         
@@ -393,6 +397,9 @@ def game_loop():
         fclock.tick(fps)#控制刷新速度（每秒钟刷新fps次）
 
         hits()
+
+
+pygame.init()
 
 BLACK = (0,0,0)#设置颜色
 RED = (255,0,0)
@@ -422,8 +429,11 @@ score=0#分数
 SPEED=10
 # p1 = controller.Controller(0)
 
-#是否移动
+#是否暂停
 still = False #用来判断暂停
+
+#bgm
+pygame.mixer.music.load(os.path.join(snd_folder,"bgm.mp3"))
 
 size = width, height = 1400, 800 #屏幕大小为当前电脑屏幕大小
 screen = pygame.display.set_mode(size)#,RESIZABLE) #应用屏幕大小，（可伸缩屏幕）
