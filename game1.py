@@ -1,13 +1,8 @@
 import pygame,os,controller,time
+import pygame as pg
 from pygame.constants import *
 from random import *
 from pygame.locals import *
-
-#文件位置
-game_folder=os.path.dirname(__file__)
-img_folder=os.path.join(game_folder,"image") #图片
-snd_folder=os.path.join(game_folder,"sound") #声音
-font_folder=os.path.join(game_folder,"font") 
 
 '''
 #特殊子弹
@@ -40,6 +35,7 @@ def draw_shield_bar(surf,x,y,pct):
     fill_rect = pygame.Rect(x,y,fill,BAR_HEIGHT)
     pygame.draw.rect(surf,GREEN,fill_rect)
     pygame.draw.rect(surf,RED,outline_rect,2)
+
 #玩家
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -266,27 +262,20 @@ def score_text():
     score_surface = score_font.render("Score  %s" % str(score), True, BLUE)
     screen.blit(score_surface,(30,20))
 
-def count_down():
-    # while True:
-    #     # for minute in range(2, -1, -1):
-    #     #     if minute == 0:
-    #     #         break
-    #     for second in range(59, -1, -1):
-    #         time.sleep(1)
-    #         return second
-    #     # print("结束")
-    #     break
-    start_ticks=pygame.time.get_ticks()
-    while True:
-        seconds=(pygame.time.get_ticks()-start_ticks)/1000 #calculate how many seconds
-        if seconds>10: # if more than 10 seconds close the game
-            break
-        print (seconds)
-
 def countdown_text():
-    countdown_font = pygame.font.Font(os.path.join(font_folder,"arcadeclassic.ttf"),40)
-    countdown_surface = countdown_font.render("Time %s" % str(count_down), True, BLUE)
-    screen.blit(countdown_surface,(0,700))
+    global running,timer,dt
+    for event in pg.event.get():
+        if event.type == pg.QUIT:
+            running = False
+
+    timer -= dt
+    if timer <= 0:
+        timer = 10  # Reset it to 10 or do something else.
+    txt = font.render(str(round(timer, 2)), True, BLUE)
+    screen.blit(txt, (70, 70))
+    pg.display.flip()
+    dt = fclock.tick(fps) / 1000  # / 1000 to convert to seconds.
+
 
 def quit_game():
     pygame.quit()
@@ -373,11 +362,12 @@ def game_loop():
     player.reset()
 
     #背景
-    background=pygame.image.load(os.path.join(img_folder,"backgroundPic.jpg"))    
-
+    background=pygame.image.load(os.path.join(img_folder,"backgroundPic.jpg"))   
+    
     running = True
     while running: #循环，一直获取用户的命令并执行
         event_press()
+        countdown_text()
 
         if pygame.display.get_active() and not still: #判断程序是否最小化，最小化后暂停
             all_sprites.update() #更新精灵类
@@ -386,7 +376,7 @@ def game_loop():
         screen.fill(WHITE)#每次移动填充的颜色
         screen.blit(background,(0,0))#显示背景
         score_text()
-        countdown_text()
+
         #draw
         draw_shield_bar(screen,1150,40,player.shield)
 
@@ -398,7 +388,20 @@ def game_loop():
 
         hits()
 
+#文件位置
+game_folder=os.path.dirname(__file__)
+img_folder=os.path.join(game_folder,"image") #图片
+snd_folder=os.path.join(game_folder,"sound") #声音
+font_folder=os.path.join(game_folder,"font") 
+
 pygame.init()
+
+pg.init()
+font = pygame.font.Font(os.path.join(font_folder,"LockClock.ttf"), 30)
+# The clock is used to limit the frame rate
+# and returns the time since last tick.
+timer = 10  # Decrease this to count down.
+dt = 0  # Delta time (time since last tick).
 
 BLACK = (0,0,0)#设置颜色
 RED = (255,0,0)
@@ -468,3 +471,5 @@ pygame.init()
 game_intro()
 
 game_loop()
+
+pg.quit()
