@@ -398,7 +398,6 @@ def game_loop():
 
         hits()
 
-
 pygame.init()
 
 BLACK = (0,0,0)#设置颜色
