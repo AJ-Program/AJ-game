@@ -25,16 +25,6 @@ class spical_bullets(pygame.sprite.Sprite):
         if self.rect.bottom > height and self.rect.bottom + self.speedy > self.rect.bottom:#同理
             self.speedy = -self.speedy
 '''
-def draw_shield_bar(surf,x,y,pct):
-    if pct < 0:
-        pct = 0
-    BAR_LENGTH = 100
-    BAR_HEIGHT = 10
-    fill = (pct/100)*BAR_LENGTH
-    outline_rect = pygame.Rect(x,y,BAR_LENGTH,BAR_HEIGHT)
-    fill_rect = pygame.Rect(x,y,fill,BAR_HEIGHT)
-    pygame.draw.rect(surf,GREEN,fill_rect)
-    pygame.draw.rect(surf,RED,outline_rect,2)
 
 #玩家
 class Player(pygame.sprite.Sprite):
@@ -47,7 +37,7 @@ class Player(pygame.sprite.Sprite):
         self.x=Player_x
         self.y=Player_y
         self.rect.center=(self.x,self.y) #玩家初始位置
-        self.shield = 161
+        self.shield = 239
 
     def update(self):#每次更新
         #玩家速度和控制
@@ -90,6 +80,7 @@ class Player(pygame.sprite.Sprite):
 
     def reset(self):    # 添加重生的方法
         global still,times_retry
+        player.shield=239
         self.rect.left, self.rect.bottom = Player_x, Player_y
         still = False
         times_retry+=1
@@ -185,13 +176,7 @@ def hits():
        all_sprites.add(m)
        mobs.add(m)
        score+=1
-    #    print(number_killed)
 
-    # hits = pygame.sprite.spritecollide(player,boss,False)
-    # if hits:
-    #     print("打中")
-    
-    #check to see if a mob hit the player
     hits = pygame.sprite.spritecollide(player,mobs,True ,pygame.sprite.collide_circle)
     for hit in hits:
         player.shield -= hit.radius*2
@@ -201,15 +186,6 @@ def hits():
 
         if player.shield<=0:
             Die()
-            #still = True #如果击中就暂停 
-
-    # mobHits = pygame.sprite.spritecollide(player, mobs, False)
-    # print(player.lives)
-    # if mobHits:
-    #     player.lives-=1
-    #     print(player.lives)
-    #     if player.lives==0:
-    #         Die()
 
 def text_objects1(text, font):
     textSurface = font.render(text, True, WHITE)
@@ -272,7 +248,7 @@ def timer_text():
         Die()
 
     txt = font.render(str(round(timer, 2)), True, BLUE)
-    screen.blit(txt, (70, 70))
+    screen.blit(txt, (20, 70))
     dt = fclock.tick(300) / 400  # / 1000 to convert to seconds.
 
 def quit_game():
@@ -301,6 +277,17 @@ def pause():
         button(" Quit",800, 450, 100, 50, dark_red, RED, quit_game)
         pygame.display.update()
         fclock.tick(15)
+
+def draw_shield_bar(surf,x,y,pct):
+    if pct < 0:
+        pct = 0
+    BAR_LENGTH = 100
+    BAR_HEIGHT = 10
+    fill = (pct/100)*BAR_LENGTH
+    outline_rect = pygame.Rect(x,y,239,BAR_HEIGHT)
+    fill_rect = pygame.Rect(x,y,fill,BAR_HEIGHT)
+    pygame.draw.rect(surf,GREEN,fill_rect)
+    pygame.draw.rect(surf,RED,outline_rect,2)
 
 #游戏开始界面
 def game_intro():
@@ -401,7 +388,7 @@ font_folder=os.path.join(game_folder,"font")
 pygame.init()
 
 #timer设置
-font = pygame.font.Font(os.path.join(font_folder,"LockClock.ttf"), 30)
+font = pygame.font.Font(os.path.join(font_folder,"LockClock.ttf"), 35)
 timer = 120  # Decrease this to count down.
 dt = 0  # Delta time (time since last tick).
 
