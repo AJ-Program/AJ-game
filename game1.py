@@ -161,7 +161,7 @@ class Mob(pygame.sprite.Sprite):
 
 #获取事件函数
 def event_press():
-    global running,still
+    global running,still,timer,dt
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -173,6 +173,10 @@ def event_press():
                 # sys.exit()
                 still = True
                 pause()
+    #timer part
+    timer -= dt 
+    if timer <= 0:
+        timer = 120  # Reset it to 10 or do something else.
 
 #碰撞判断函数
 def hits(): 
@@ -262,20 +266,11 @@ def score_text():
     score_surface = score_font.render("Score  %s" % str(score), True, BLUE)
     screen.blit(score_surface,(30,20))
 
-def countdown_text():
-    global running,timer,dt
-    for event in pg.event.get():
-        if event.type == pg.QUIT:
-            running = False
-
-    timer -= dt
-    if timer <= 0:
-        timer = 10  # Reset it to 10 or do something else.
+def timer_text():
+    global dt,timer
     txt = font.render(str(round(timer, 2)), True, BLUE)
     screen.blit(txt, (70, 70))
-    pg.display.flip()
-    dt = fclock.tick(fps) / 1000  # / 1000 to convert to seconds.
-
+    dt = fclock.tick(300) / 1000  # / 1000 to convert to seconds.
 
 def quit_game():
     pygame.quit()
@@ -367,7 +362,6 @@ def game_loop():
     running = True
     while running: #循环，一直获取用户的命令并执行
         event_press()
-        countdown_text()
 
         if pygame.display.get_active() and not still: #判断程序是否最小化，最小化后暂停
             all_sprites.update() #更新精灵类
@@ -376,6 +370,7 @@ def game_loop():
         screen.fill(WHITE)#每次移动填充的颜色
         screen.blit(background,(0,0))#显示背景
         score_text()
+        timer_text()
 
         #draw
         draw_shield_bar(screen,1150,40,player.shield)
@@ -400,7 +395,7 @@ pg.init()
 font = pygame.font.Font(os.path.join(font_folder,"LockClock.ttf"), 30)
 # The clock is used to limit the frame rate
 # and returns the time since last tick.
-timer = 10  # Decrease this to count down.
+timer = 120  # Decrease this to count down.
 dt = 0  # Delta time (time since last tick).
 
 BLACK = (0,0,0)#设置颜色
@@ -471,5 +466,3 @@ pygame.init()
 game_intro()
 
 game_loop()
-
-pg.quit()
