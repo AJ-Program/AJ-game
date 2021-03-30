@@ -89,9 +89,10 @@ class Player(pygame.sprite.Sprite):
         bullet.add(bullets)
 
     def reset(self):    # 添加重生的方法
-        global still
+        global still,times_retry
         self.rect.left, self.rect.bottom = Player_x, Player_y
         still = False
+        times_retry+=1
         
     # def move_controllor(self, movement: tuple = (0, 0)):
     #     self.x += movement[0] * SPEED
@@ -161,7 +162,7 @@ class Mob(pygame.sprite.Sprite):
 
 #获取事件函数
 def event_press():
-    global running,still,timer,dt
+    global running,still
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -173,11 +174,7 @@ def event_press():
                 # sys.exit()
                 still = True
                 pause()
-    #timer part
-    timer -= dt 
-    if timer <= 0:
-        timer = 120  # Reset it to 10 or do something else.
-
+    
 #碰撞判断函数
 def hits(): 
     global hit,still,player_live,score
@@ -268,9 +265,15 @@ def score_text():
 
 def timer_text():
     global dt,timer
+
+    timer -= dt
+    if timer <= 0:
+        timer = 120
+        Die()
+
     txt = font.render(str(round(timer, 2)), True, BLUE)
     screen.blit(txt, (70, 70))
-    dt = fclock.tick(300) / 1000  # / 1000 to convert to seconds.
+    dt = fclock.tick(300) / 400  # / 1000 to convert to seconds.
 
 def quit_game():
     pygame.quit()
@@ -354,7 +357,13 @@ def game_intro():
         fclock.tick(15)
 
 def game_loop():
+    global timer
+    
     player.reset()
+
+    #reset timer
+    if times_retry>0:
+        timer = 120  # Reset it to 10 or do something else.
 
     #背景
     background=pygame.image.load(os.path.join(img_folder,"backgroundPic.jpg"))   
@@ -391,10 +400,8 @@ font_folder=os.path.join(game_folder,"font")
 
 pygame.init()
 
-pg.init()
+#timer设置
 font = pygame.font.Font(os.path.join(font_folder,"LockClock.ttf"), 30)
-# The clock is used to limit the frame rate
-# and returns the time since last tick.
 timer = 120  # Decrease this to count down.
 dt = 0  # Delta time (time since last tick).
 
@@ -428,6 +435,9 @@ SPEED=10
 
 #是否暂停
 still = False #用来判断暂停
+
+#重试次数
+times_retry = -1
 
 #bgm
 pygame.mixer.music.load(os.path.join(snd_folder,"bgm.mp3"))
