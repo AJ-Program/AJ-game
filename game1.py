@@ -1,5 +1,5 @@
-import pygame,os,controller,time
-import pygame as pg
+from math import factorial
+import pygame,os,controller
 from pygame.constants import *
 from random import *
 from pygame.locals import *
@@ -251,6 +251,10 @@ def timer_text():
     screen.blit(txt, (20, 70))
     dt = fclock.tick(300) / 400  # / 1000 to convert to seconds.
 
+# def rank_list():#排行榜
+    # s[0]
+
+
 def quit_game():
     pygame.quit()
     quit()
@@ -367,6 +371,7 @@ def game_loop():
         screen.blit(background,(0,0))#显示背景
         score_text()
         timer_text()
+        # rank_list()
 
         #draw
         draw_shield_bar(screen,1150,40,player.shield)
@@ -378,6 +383,7 @@ def game_loop():
         fclock.tick(fps)#控制刷新速度（每秒钟刷新fps次）
 
         hits()
+
 
 #文件位置
 game_folder=os.path.dirname(__file__)
@@ -415,6 +421,9 @@ Boss_x=650
 Boss_y=100
 
 score=0#分数
+r = []
+t = []
+s = []
 
 #玩家手柄
 SPEED=10
@@ -458,8 +467,6 @@ all_sprites.add(b)
 # Jason Xiao, Alex Li
 # Transocks
 # March 7 2021
-pygame.init()
-
 game_intro()
 
 game_loop()
