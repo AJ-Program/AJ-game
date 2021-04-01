@@ -97,9 +97,12 @@ class Boss(pygame.sprite.Sprite):
         # self.image = pygame.Surface((300,100))
         # self.image.fill(BLACK)
         self.rect = self.image.get_rect()
+        #initial shield of boss
+        # self.shield=100
         self.x_speed,self.y_speed = 2,0 #速度
         self.x = 650
         self.rect.center = (self.x,100)#图片中心
+
     # def update(self):
     #     #移动
     #     self.rect = self.rect.move(self.x_speed, self.y_speed)
@@ -121,6 +124,8 @@ class Bullets(pygame.sprite.Sprite):
         # self.image = pygame.Surface((10,20))
         # self.image.fill(GREEN)
         self.rect = self.image.get_rect()
+        #radius of bullet, so that subtract with boss' sheld 
+        # self.radius = int(self.rect.width)
         self.rect.centerx = x
         self.rect.bottom = y
         self.speed = -5
@@ -186,7 +191,13 @@ def hits():
 
         if player.shield<=0:
             Die()
-
+    
+    '''set a function for boss(when bullet hits him)
+    hits = pygame.sprite.spritecollide(bullet,boss,True ,pygame.sprite.collide_circle)
+    for hit in hits:
+        b.shield -= hit.radius
+        m = Boss()
+    '''
 def text_objects1(text, font):
     textSurface = font.render(text, True, WHITE)
     return textSurface, textSurface.get_rect()
@@ -374,7 +385,9 @@ def game_loop():
         # rank_list()
 
         #draw
-        draw_shield_bar(screen,1150,40,player.shield)
+        draw_shield_bar(screen,1050,750,player.shield)
+        #another bar for boss' health
+        # draw_shield_bar(screen,1150,80,boss.shield)
 
         all_sprites.draw(screen) #显示导入到精灵类的屏幕
         
