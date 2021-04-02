@@ -88,7 +88,8 @@ class Player(pygame.sprite.Sprite):
     # def move_controllor(self, movement: tuple = (0, 0)):
     #     self.x += movement[0] * SPEED
     #     self.y += movement[1] * SPEED
-        
+
+'''
 #BOSS
 class Boss(pygame.sprite.Sprite):
     def __init__(self):
@@ -116,6 +117,8 @@ class Boss(pygame.sprite.Sprite):
     #     if self.rect.right > width and self.rect.right + self.x_speed > self.rect.right:#如果接近边缘
     #         self.x_speed = -self.x_speed
 
+'''
+
 #子弹
 class Bullets(pygame.sprite.Sprite):
     def __init__(self,x,y):
@@ -128,7 +131,7 @@ class Bullets(pygame.sprite.Sprite):
         # self.radius = int(self.rect.width)
         self.rect.centerx = x
         self.rect.bottom = y
-        self.speed = -5
+        self.speed = -10
     def update(self):
         self.rect.y += self.speed
         if self.rect.bottom < 0:
@@ -138,7 +141,10 @@ class Bullets(pygame.sprite.Sprite):
 class Mob(pygame.sprite.Sprite): 
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(os.path.join(img_folder,"mob1.png"))
+        mob = []
+        mob.append(pygame.image.load(os.path.join(img_folder,"mob1.png")))
+        mob.append(pygame.image.load(os.path.join(img_folder,"mob2.1.png")))
+        self.image = mob[randint(0,1)]
         # self.image = pygame.Surface((50,50))
         # self.image.fill(RED)
         self.rect = self.image.get_rect()
@@ -146,9 +152,11 @@ class Mob(pygame.sprite.Sprite):
         #pygame.draw.circle(self.image,RED,self.rect.center, self.radius)
         self.rect.x = randint(400,900)#be sure the bullet comes somewhere from left and right
         self.rect.y = randint(-100,-40)# where the bullet comes from
-        self.y_speed = randint(1,2)
-        self.x_speed = randint(-1,2)
+        self.y_speed = randint(4,5)
+        self.x_speed = randint(-9,9)
     def update(self):
+        if self.rect.left < 0 or self.rect.right > width:
+            self.x_speed = -self.x_speed
         self.rect.x += self.x_speed
         self.rect.y += self.y_speed
         if self.rect.top > height + 10:
@@ -163,7 +171,7 @@ def event_press():
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN: #记录键盘按下
-            if event.key == pygame.K_z or event.key == pygame.K_x:#发射子弹
+            if event.key == pygame.K_z:#发射子弹
                 player.shoot()
         # elif event.type == KEYUP: #记录键盘按键抬起
             if event.key == pygame.K_ESCAPE:#ESC
@@ -190,6 +198,7 @@ def hits():
         mobs.add(m)
 
         if player.shield<=0:
+            score = 0
             Die()
     
     '''set a function for boss(when bullet hits him)
@@ -198,6 +207,7 @@ def hits():
         b.shield -= hit.radius
         m = Boss()
     '''
+
 def text_objects1(text, font):
     textSurface = font.render(text, True, WHITE)
     return textSurface, textSurface.get_rect()
@@ -312,9 +322,6 @@ def game_intro():
     count = 0
     background_intro = []
 
-    #bgm
-    pygame.mixer.music.play(-1)
-
     for i in range(1,11):
         background_intro.append(pygame.image.load(os.path.join(img_folder,"background1.png")))
     for i in range(1,11):
@@ -368,7 +375,10 @@ def game_loop():
         timer = 120  # Reset it to 10 or do something else.
 
     #背景
-    background=pygame.image.load(os.path.join(img_folder,"backgroundPic.jpg"))   
+    background=pygame.image.load(os.path.join(img_folder,"backgroundPic.jpg"))  
+
+    #bgm
+    pygame.mixer.music.play(-1) 
     
     running = True
     while running: #循环，一直获取用户的命令并执行
@@ -396,7 +406,6 @@ def game_loop():
         fclock.tick(fps)#控制刷新速度（每秒钟刷新fps次）
 
         hits()
-
 
 #文件位置
 game_folder=os.path.dirname(__file__)
@@ -464,7 +473,7 @@ boss = pygame.sprite.Group()
 
 #获取类
 player=Player()
-b=Boss()
+# b=Boss()
 #spical_bullet=spical_bullets()
 
 for i in range(30): #小怪数
@@ -472,14 +481,20 @@ for i in range(30): #小怪数
     all_sprites.add(m)
     mobs.add(m)
 
+# for i in range(3): #子弹数
+#     m = Bullets(player.rect.centerx,player.rect.y)
+#     all_sprites.add(m)
+#     bullet.add(m)
+
 #放入精灵类
 all_sprites.add(player) #添加进精灵组
-all_sprites.add(b) 
+# all_sprites.add(b) 
 #all_sprites.add(spical_bullet)
 
 # Jason Xiao, Alex Li
 # Transocks
 # March 7 2021
+
 game_intro()
 
 game_loop()
