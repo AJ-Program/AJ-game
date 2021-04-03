@@ -1,4 +1,3 @@
-from math import factorial
 import pygame,os,controller
 from pygame.constants import *
 from random import *
@@ -240,19 +239,19 @@ def Die():
 
 #按钮
 def button (msg, x, y, w, h, ic, ac, action=None):
-        mouse =pygame.mouse.get_pos()
-        click = pygame.mouse.get_pressed()
-        # print(click)
-        if x + w > mouse[0] > x and y + h > mouse[1] > y:
-            pygame.draw.rect(screen, ac, (x,y,w,h))
-            if click[0] == 1 and action != None:
-                action()
-        else:
-            pygame.draw.rect(screen, ic, (x,y,w,h))
-        smallText = pygame.font.Font(os.path.join(font_folder,"arcadeclassic.ttf"), 40)
-        textSurf, textRect = text_objects1(msg, smallText)
-        textRect.center = ( (x+(w/2)), (y+(h/2)))
-        screen.blit(textSurf, textRect)
+    click = pygame.mouse.get_pressed()
+    mouse =pygame.mouse.get_pos()
+    # print(click)
+    if x + w > mouse[0] > x and y + h > mouse[1] > y:
+        pygame.draw.rect(screen, ac, (x,y,w,h))
+        if click[0] == True and action != None:
+            action()
+    else:
+        pygame.draw.rect(screen, ic, (x,y,w,h))
+    smallText = pygame.font.Font(os.path.join(font_folder,"arcadeclassic.ttf"), 40)
+    textSurf, textRect = text_objects1(msg, smallText)
+    textRect.center = ( (x+(w/2)), (y+(h/2)))
+    screen.blit(textSurf, textRect)
 
 def score_text():
     global score
