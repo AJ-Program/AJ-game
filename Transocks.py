@@ -1,4 +1,4 @@
-import pygame,os,controller
+import pygame,os,controller,sys
 from pygame.constants import *
 from random import *
 from pygame.locals import *
@@ -184,10 +184,15 @@ def hits():
     #check to see if a bullet hit the mob
     hits = pygame.sprite.groupcollide(mobs,bullet,True,True)
     for hit in hits:
-       m = Mob()
-       all_sprites.add(m)
-       mobs.add(m)
-       score+=1
+        m = Mob()
+        all_sprites.add(m)
+        mobs.add(m)
+        score+=1
+        if Die:
+            score_count.clear()
+            score_count.append(score)
+            print(score_count)
+            
 
     hits = pygame.sprite.spritecollide(player,mobs,True ,pygame.sprite.collide_circle)
     for hit in hits:
@@ -221,6 +226,7 @@ def text_objects3(text, font):
 
 #死亡界面
 def Die():
+    pygame.mixer.music.pause()
     largeText = pygame.font.Font(os.path.join(font_folder,"arcadeclassic.ttf"),115)
     TextSurf, TextRect = text_objects3('Game   Over!', largeText)
     TextRect.center = ((width/2),(height/2))
@@ -271,11 +277,42 @@ def timer_text():
     screen.blit(txt, (20, 70))
     dt = fclock.tick(300) / 400  # / 1000 to convert to seconds.
 
-# def rank_list():#排行榜
-    # s[0]
+def text_create(name): 
+    result_score = []
+    result_retry = []
+    result_time = []
+    if player.shield<=0:
+        if len(score_count) == 0: #如果数组为空
+            result_score.append(0)
+        else:
+            result_score.append(max(score_count))
+        result_retry.append(times_retry)
+        result_time.append(format(120-timer, '.2f'))
+        total = [result_score,result_retry,result_time]
 
+    desktop_path = sys.argv[0] # 新创建的txt文件的存放路径    
+    full_path = desktop_path + "_" + name + '.txt'   #也可以创建一个.doc的word文档    
+    file = open(full_path, '+a')    # w 的含义为可进行读写
+
+    # file.write('score\tretry\ttime\n')
+    for row in total:
+        rowtxt = '{}'.format(row[0])
+        file.write(rowtxt)
+        file.write('\t')
+    file.write('\n')
+    file.close() 
+
+def rank_list():#排行榜
+    # file_path = sys.path[0]+'/Transocks.py_log1.txt'
+    
+    # print(score,'\t',times_retry,'\t',format(120-timer, '.2f'),"s",sep='')
+
+    text_create("log1")
 
 def quit_game():
+
+    rank_list()
+
     pygame.quit()
     quit()
 
@@ -283,9 +320,11 @@ def quit_game():
 def unpause():
     global still
     still = False
+    pygame.mixer.music.unpause()
 
 #暂停
 def pause():
+    pygame.mixer.music.pause()
     largeText = pygame.font.Font(os.path.join(font_folder,"arcadeclassic.ttf"),115)
     TextSurf, TextRect = text_objects2('Paused', largeText)
     TextRect.center = ((width/2),(height/2))
@@ -372,12 +411,13 @@ def game_loop():
     #reset timer
     if times_retry>0:
         timer = 120  # Reset it to 10 or do something else.
+        pygame.mixer.music.unpause()
+    elif times_retry==0:
+        #bgm
+        pygame.mixer.music.play(-1) 
 
     #背景
     background=pygame.image.load(os.path.join(img_folder,"backgroundPic.jpg"))  
-
-    #bgm
-    pygame.mixer.music.play(-1) 
     
     running = True
     while running: #循环，一直获取用户的命令并执行
@@ -442,13 +482,10 @@ Boss_x=650
 Boss_y=100
 
 score=0#分数
-r = []
-t = []
-s = []
+score_count = []
 
 #玩家手柄
-SPEED=10
-# p1 = controller.Controller(0)
+
 
 #是否暂停
 still = False #用来判断暂停
