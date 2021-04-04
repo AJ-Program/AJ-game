@@ -191,7 +191,7 @@ def hits():
         if Die:
             score_count.clear()
             score_count.append(score)
-            print(score_count)
+            # print(score_count)
             
 
     hits = pygame.sprite.spritecollide(player,mobs,True ,pygame.sprite.collide_circle)
@@ -281,6 +281,8 @@ def text_create(name):
     result_score = []
     result_retry = []
     result_time = []
+
+    #获得数值
     if player.shield<=0:
         if len(score_count) == 0: #如果数组为空
             result_score.append(0)
@@ -288,12 +290,14 @@ def text_create(name):
             result_score.append(max(score_count))
         result_retry.append(times_retry)
         result_time.append(format(120-timer, '.2f'))
-        total = [result_score,result_retry,result_time]
+    total = [result_score,result_retry,result_time]
 
+    #创建文件
     desktop_path = sys.argv[0] # 新创建的txt文件的存放路径    
     full_path = desktop_path + "_" + name + '.txt'   #也可以创建一个.doc的word文档    
     file = open(full_path, '+a')    # w 的含义为可进行读写
 
+    #写入文件
     # file.write('score\tretry\ttime\n')
     for row in total:
         rowtxt = '{}'.format(row[0])
@@ -304,10 +308,31 @@ def text_create(name):
 
 def rank_list():#排行榜
     # file_path = sys.path[0]+'/Transocks.py_log1.txt'
-    
     # print(score,'\t',times_retry,'\t',format(120-timer, '.2f'),"s",sep='')
-
+    
     text_create("log1")
+    read_rewrite()
+
+def read_rewrite():
+    #读取文件
+    read_data = []
+    # with open(sys.path[0]+'/Transocks.py_log1.txt', 'r') as f:
+    #     lines = f.readlines()#[1:]  # skip the first line.
+
+    for line in open(sys.path[0]+'/Transocks.py_log1.txt', 'r'): #设置文件对象并读取每一行文件
+        # line = line.replace("\t", "-") #把空格和换行都去掉
+        line = line.replace("\n", "")
+        read_data.append(line)#将每一行文件加入到list中
+    read_data.sort()
+    read_data.reverse()
+
+    file=open(sys.path[0]+'/Transocks.py_log1.txt', 'w')
+    for i in read_data:
+        print(i)
+        #重写覆盖
+        file.write(i)
+        file.write('\n')
+    file.close()
 
 def quit_game():
 
