@@ -385,6 +385,15 @@ def game_intro():
     count = 0
     background_intro = []
 
+    #输入框变量
+    input_box = pygame.Rect(150,350,140,31)
+    color_inactive = GREEN
+    color_active = dark_green
+    color = color_inactive
+    text = ''
+    active = False
+
+    #动态背景
     for i in range(1,11):
         background_intro.append(pygame.image.load(os.path.join(img_folder,"background1.png")))
     for i in range(1,11):
@@ -408,7 +417,24 @@ def game_intro():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if input_box.collidepoint(event.pos):
+                    active = not active
+                else:
+                    active = False
+                color = color_active if active else color_inactive
+            if event.type == pygame.KEYDOWN:
+                if active:
+                    if event.key == pygame.K_RETURN:
+                        print(text)
+                        text = ''
+                    elif event.key == pygame.K_BACKSPACE:
+                        text = text[:-1]
+                    else:
+                        text += event.unicode
         
+        #背景
         background_intro1 = background_intro[count]
 
         screen.blit(background_intro1,(0,0))
@@ -423,6 +449,14 @@ def game_intro():
         # TextRect.center = ((width/2),(height/2/2))
         # screen.blit(TextSurf, TextRect)
 
+        #input box
+        text_surface = font.render(text, True, color)
+        width = max(200, text_surface.get_width()+10)
+        input_box.w = width
+        screen.blit(text_surface,(input_box.x+5,input_box.y-8))
+        pygame.draw.rect(screen,color,input_box,5)
+        
+        #按钮
         button("GO", 500, 450, 100, 50, dark_green, GREEN, game_loop)
         button(" Quit",800, 450, 100, 50, dark_red, RED, quit_game)
         pygame.display.update()
