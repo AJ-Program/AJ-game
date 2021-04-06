@@ -334,19 +334,21 @@ def read_rewrite():
                 read_data[i].append(float(read_data[i][j]))
             del(read_data[i][0:3])
     read_data.sort(key=(lambda x:[x[0],x[2],x[1]]),reverse=True)
-    if count>10:
+    if count>=10:
         read_data.pop(10)
     print(read_data)
     f.close()
 
     #重写部分
-    # file=open(sys.path[0]+'/Transocks.py_log1.txt', 'w')
-    # for i in read_data:
-    #     print(i)
-    #     #重写覆盖
-    #     file.write(i)
-    #     file.write('\n')
-    # file.close()
+    file=open(sys.path[0]+'/Transocks.py_log1.txt', 'w')
+    for i in range(len(read_data)):
+        file.write("Score:"+str(read_data[i][0]))
+        file.write(" ")
+        file.write("Retry:"+str(read_data[i][1]))
+        file.write(" ")
+        file.write("Time:"+str(read_data[i][2]))
+        file.write('\n')
+    file.close()
 
 def quit_game():
 
