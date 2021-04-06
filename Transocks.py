@@ -277,7 +277,8 @@ def timer_text():
     screen.blit(txt, (20, 70))
     dt = fclock.tick(300) / 400  # / 1000 to convert to seconds.
 
-def text_create(name): 
+def txt_create(name): 
+    global names
     result_score = []
     result_retry = []
     result_time = []
@@ -285,11 +286,11 @@ def text_create(name):
     #获得数值
     if player.shield<=0:
         if len(score_count) == 0: #如果数组为空
-            result_score.append(0)
+            result_score.append("Score:"+"0")
         else:
-            result_score.append(max(score_count))
-        result_retry.append(times_retry)
-        result_time.append(format(120-timer, '.2f'))
+            result_score.append(names[0]+": "+"Score:"+str(max(score_count)))
+        result_retry.append("Retry:"+str(times_retry))
+        result_time.append("Time:"+format(120-timer, '.2f'))
     total = [result_score,result_retry,result_time]
 
     #创建文件
@@ -302,7 +303,7 @@ def text_create(name):
     for row in total:
         rowtxt = '{}'.format(row[0])
         file.write(rowtxt)
-        file.write('\t')
+        file.write(' ')
     file.write('\n')
     file.close() 
 
@@ -310,34 +311,46 @@ def rank_list():#排行榜
     # file_path = sys.path[0]+'/Transocks.py_log1.txt'
     # print(score,'\t',times_retry,'\t',format(120-timer, '.2f'),"s",sep='')
     
-    text_create("log1")
+    txt_create("log1")
     read_rewrite()
 
 def read_rewrite():
     #读取文件
-    read_data = []
+    read_data_line = []
+    n=3 #大列表中几个数据组成一个小列表
     # with open(sys.path[0]+'/Transocks.py_log1.txt', 'r') as f:
     #     lines = f.readlines()#[1:]  # skip the first line.
 
     for line in open(sys.path[0]+'/Transocks.py_log1.txt', 'r'): #设置文件对象并读取每一行文件
-        # line = line.replace("\t", "-") #把空格和换行都去掉
+        # line = line.replace(" ", "") #把空格和换行都去掉
         line = line.replace("\n", "")
-        read_data.append(line)#将每一行文件加入到list中
-    read_data.sort()
-    read_data.reverse()
+        read_data_line.append(line)#将每一行文件加入到list中，这是每一行的数据，每一行的数据还要划分成3个小部分，分别对应score，retry和time
 
-    file=open(sys.path[0]+'/Transocks.py_log1.txt', 'w')
-    for i in read_data:
-        print(i)
-        #重写覆盖
-        file.write(i)
-        file.write('\n')
-    file.close()
+
+    # print([read_data_line[i:i + n] for i in range(0, len(read_data_line), n)])
+
+    # read_data.sort()#reverse=True)
+    print(read_data_line)
+    # read_data.reverse()
+    # print(read_data)
+
+    #重写部分
+    # file=open(sys.path[0]+'/Transocks.py_log1.txt', 'w')
+    # for i in read_data:
+    #     print(i)
+    #     #重写覆盖
+    #     file.write(i)
+    #     file.write('\n')
+    # file.close()
 
 def quit_game():
 
     rank_list()
 
+    pygame.quit()
+    quit()
+
+def quit_game1():
     pygame.quit()
     quit()
 
@@ -379,7 +392,7 @@ def draw_shield_bar(surf,x,y,pct):
 
 #游戏开始界面
 def game_intro():
-    global still
+    global still,names
     still = False
     intro = True
     count = 0
@@ -391,6 +404,7 @@ def game_intro():
     color_active = dark_green
     color = color_inactive
     text = ''
+    names = []
     active = False
 
     #动态背景
@@ -427,7 +441,8 @@ def game_intro():
             if event.type == pygame.KEYDOWN:
                 if active:
                     if event.key == pygame.K_RETURN:
-                        print(text)
+                        # print(text) #输出文字
+                        names.append(text)
                         text = ''
                     elif event.key == pygame.K_BACKSPACE:
                         text = text[:-1]
@@ -458,7 +473,7 @@ def game_intro():
         
         #按钮
         button("GO", 500, 450, 100, 50, dark_green, GREEN, game_loop)
-        button(" Quit",800, 450, 100, 50, dark_red, RED, quit_game)
+        button(" Quit",800, 450, 100, 50, dark_red, RED, quit_game1)
         pygame.display.update()
         fclock.tick(15)
 
