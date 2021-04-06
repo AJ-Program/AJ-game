@@ -317,6 +317,7 @@ def rank_list():#排行榜
 def read_rewrite():
     #读取文件
     read_data = []
+    count = 0
 
     with open(sys.path[0]+'/Transocks.py_log1.txt', 'r') as f:
         for line in f:#遍历每一行
@@ -324,14 +325,18 @@ def read_rewrite():
             line = line.replace("Retry", "")
             line = line.replace("Time", "")
             line = line.replace(":", "")
-            line
             line = line.split()#将每一行的数字分开放在列表中
             read_data.append(line)
+            count+=1
+        print (count)
         for i in range(0,len(read_data)):
             for j in range(3):
                 read_data[i].append(float(read_data[i][j]))
             del(read_data[i][0:3])
-    print(sorted(read_data,key=(lambda x:[x[0],x[2],x[1]])))
+    read_data.sort(key=(lambda x:[x[0],x[2],x[1]]),reverse=True)
+    if count>10:
+        read_data.pop(10)
+    print(read_data)
     f.close()
 
     #重写部分
