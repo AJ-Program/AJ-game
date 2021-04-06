@@ -288,7 +288,7 @@ def txt_create(name):
         if len(score_count) == 0: #如果数组为空
             result_score.append("Score:"+"0")
         else:
-            result_score.append(names[0]+": "+"Score:"+str(max(score_count)))
+            result_score.append(": "+"Score:"+str(max(score_count)))
         result_retry.append("Retry:"+str(times_retry))
         result_time.append("Time:"+format(120-timer, '.2f'))
     total = [result_score,result_retry,result_time]
@@ -316,23 +316,23 @@ def rank_list():#排行榜
 
 def read_rewrite():
     #读取文件
-    read_data_line = []
-    n=3 #大列表中几个数据组成一个小列表
-    # with open(sys.path[0]+'/Transocks.py_log1.txt', 'r') as f:
-    #     lines = f.readlines()#[1:]  # skip the first line.
+    read_data = []
 
-    for line in open(sys.path[0]+'/Transocks.py_log1.txt', 'r'): #设置文件对象并读取每一行文件
-        # line = line.replace(" ", "") #把空格和换行都去掉
-        line = line.replace("\n", "")
-        read_data_line.append(line)#将每一行文件加入到list中，这是每一行的数据，每一行的数据还要划分成3个小部分，分别对应score，retry和time
-
-
-    # print([read_data_line[i:i + n] for i in range(0, len(read_data_line), n)])
-
-    # read_data.sort()#reverse=True)
-    print(read_data_line)
-    # read_data.reverse()
-    # print(read_data)
+    with open(sys.path[0]+'/Transocks.py_log1.txt', 'r') as f:
+        for line in f:#遍历每一行
+            line = line.replace("Score", "")
+            line = line.replace("Retry", "")
+            line = line.replace("Time", "")
+            line = line.replace(":", "")
+            line
+            line = line.split()#将每一行的数字分开放在列表中
+            read_data.append(line)
+        for i in range(0,len(read_data)):
+            for j in range(3):
+                read_data[i].append(float(read_data[i][j]))
+            del(read_data[i][0:3])
+    print(sorted(read_data,key=(lambda x:[x[0],x[2],x[1]])))
+    f.close()
 
     #重写部分
     # file=open(sys.path[0]+'/Transocks.py_log1.txt', 'w')
@@ -441,8 +441,8 @@ def game_intro():
             if event.type == pygame.KEYDOWN:
                 if active:
                     if event.key == pygame.K_RETURN:
-                        # print(text) #输出文字
-                        names.append(text)
+                        print(text) #输出文字
+                        # names.append(text)
                         text = ''
                     elif event.key == pygame.K_BACKSPACE:
                         text = text[:-1]

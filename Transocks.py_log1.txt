@@ -17,5 +17,12 @@ Score:6 Retry:0 Time:2.76
 Score:0 Retry:0 Time:1.88 
 Score:0 Retry:0 Time:2.20 
 Score:0 Retry:0 Time:2.10 
-: Score:4 Retry:0 Time:4.97 
-jason: Score:2 Retry:0 Time:2.08 
+Score:4 Retry:0 Time:4.97 
+Score:0 Retry:0 Time:2.14 
+: Score:2 Retry:0 Time:1.97 
+: Score:3 Retry:0 Time:1.98 
+: Score:3 Retry:0 Time:2.02 
+: Score:3 Retry:0 Time:2.01 
+: Score:4 Retry:0 Time:2.83 
+: Score:4 Retry:0 Time:2.29 
+: Score:2 Retry:0 Time:1.86 
