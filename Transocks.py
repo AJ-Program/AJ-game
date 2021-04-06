@@ -328,15 +328,16 @@ def read_rewrite():
             line = line.split()#将每一行的数字分开放在列表中
             read_data.append(line)
             count+=1
-        print (count)
+        # print (count)
         for i in range(0,len(read_data)):
             for j in range(3):
                 read_data[i].append(float(read_data[i][j]))
             del(read_data[i][0:3])
+    print(read_data)#
     read_data.sort(key=(lambda x:[x[0],x[2],x[1]]),reverse=True)
     if count>=10:
         read_data.pop(10)
-    print(read_data)
+    print(read_data)#
     f.close()
 
     #重写部分
@@ -347,6 +348,7 @@ def read_rewrite():
         file.write("Retry:"+str(read_data[i][1]))
         file.write(" ")
         file.write("Time:"+str(read_data[i][2]))
+        print("Score:",read_data[i][0],"Retry:",read_data[i][1],"Time:",read_data[i][2])#
         file.write('\n')
     file.close()
 
