@@ -1,5 +1,10 @@
+Score:33.0 Retry:3.0 Time:7.74
 Score:20.0 Retry:0.0 Time:5.84
 Score:18.0 Retry:0.0 Time:3.7
+Score:12.0 Retry:2.0 Time:3.75
+Score:11.0 Retry:0.0 Time:4.29
+Score:7.0 Retry:0.0 Time:6.32
+Score:7.0 Retry:3.0 Time:2.47
 Score:7.0 Retry:1.0 Time:2.08
 Score:6.0 Retry:0.0 Time:5.66
-Score:2.0 Retry:0.0 Time:2.25
+Score:6.0 Retry:0.0 Time:4.34

@@ -304,9 +304,10 @@ def txt_create(name):
         rowtxt = '{}'.format(row[0])
         file.write(rowtxt)
         file.write(' ')
+        print(rowtxt)
     file.write('\n')
     file.close() 
-
+  
 def rank_list():#排行榜
     # file_path = sys.path[0]+'/Transocks.py_log1.txt'
     # print(score,'\t',times_retry,'\t',format(120-timer, '.2f'),"s",sep='')
@@ -333,15 +334,17 @@ def read_rewrite():
             for j in range(3):
                 read_data[i].append(float(read_data[i][j]))
             del(read_data[i][0:3])
-    print(read_data)#
+    # print(read_data)#
     read_data.sort(key=(lambda x:[x[0],x[2],x[1]]),reverse=True)
     if count>=10:
         read_data.pop(10)
-    print(read_data)#
+    # print(read_data)#
     f.close()
 
     #重写部分
     file=open(sys.path[0]+'/Transocks.py_log1.txt', 'w')
+    print()
+    print("Rank:")
     for i in range(len(read_data)):
         file.write("Score:"+str(read_data[i][0]))
         file.write(" ")
@@ -450,7 +453,7 @@ def game_intro():
             if event.type == pygame.KEYDOWN:
                 if active:
                     if event.key == pygame.K_RETURN:
-                        print(text) #输出文字
+                        print("Name:",text) #输出文字
                         # names.append(text)
                         text = ''
                     elif event.key == pygame.K_BACKSPACE:
@@ -600,6 +603,8 @@ for i in range(30): #小怪数
     all_sprites.add(m)
     mobs.add(m)
 
+#show score
+
 # for i in range(3): #子弹数
 #     m = Bullets(player.rect.centerx,player.rect.y)
 #     all_sprites.add(m)
@@ -617,3 +622,12 @@ all_sprites.add(player) #添加进精灵组
 game_intro()
 
 game_loop()
+# #after the game, show the txtf ile
+# hs=open("test.txt","r")
+# #read each line into an array
+# lines=hs.readlines()
+# #assign the first line [index value 0] to string names and remove extra characters
+# names=lines[0].replace("[","").replace("]","").replace(",","").replace("'","")
+# #assign the second line [index value 1] to string score and remove extra characters
+# score=lines[1].replace("[","").replace("]","").replace(",","").replace("'","")
+
